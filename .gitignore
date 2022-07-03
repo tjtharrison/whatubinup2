@@ -1,0 +1,5 @@
+config.json
+report.json
+logs/*
+reports/*
+config/*
