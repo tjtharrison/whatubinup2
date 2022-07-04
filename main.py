@@ -167,14 +167,19 @@ if __name__ == "__main__":
     while True:
         today_report = json.loads(get_report())
         current_config = json.loads(get_config())
+
         working_hours = current_config["total_hours"]["value"]
 
-        hours_spent = (
+        event, values = main_window.read(timeout=2)
+        # Avoiding race condition on first launch
+        try:
+            hours_spent = (
             today_report["meetings"]
             + today_report["planned_dev"]
             + today_report["unplanned_dev"]
-        )
-        event, values = main_window.read(timeout=2)
+            )
+        except:
+            hours_spent = 0
         main_window["current_total"].update(
             "Total logged: " + str(hours_spent) + "/" + str(working_hours)
         )
@@ -210,6 +215,8 @@ if __name__ == "__main__":
                 font=font,
                 auto_close_duration=1,
                 auto_close=True,
-            )
+            )    
+
+        
 
 main_window.close()
