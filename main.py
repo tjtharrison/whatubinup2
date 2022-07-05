@@ -19,7 +19,7 @@ TOTAL_DEV = 0
 sg.theme("DarkTeal9")
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.FileHandler("./logs/application_" + today_date + ".log"),
@@ -42,7 +42,6 @@ def get_config():
     """Function to get or generate app config"""
     try:
         with open("./config/all.json", encoding="utf-8") as config:
-            logging.debug("Loading config")
             config = json.load(config)
     except:
         logging.info("Generating config file on first run")
@@ -85,7 +84,6 @@ def get_report():
     """App to get or generate todays report"""
     try:
         with open("./reports/" + today_date + ".json", encoding="utf-8") as report:
-            logging.debug("Loading report")
             report = json.load(report)
     except:
         logging.info("Generating report file on first run for today")
@@ -165,17 +163,19 @@ def show_settings():
         logging.info("New settings applied: %s", new_config )
     settings_window.close()
 
-def do_notify(start_time,config):
+def do_notify(start_time):
     while True:
+        config = json.loads(get_config())
         time_since = round((time.time() - start_time) / 60, 1)
-        if time_since == float(config["reminder_minutes"]["value"]):
+        if time_since > float(config["reminder_minutes"]["value"]):
             with open("./tmp/do_notify", "w", encoding="UTF-8") as do_notify_file:
                 do_notify_file.write(str(time.time()))
                 start_time = time.time()
+                logging.debug("Notification sent, timer restarting")
                 continue
         else:
             remaining_time = round(float(config["reminder_minutes"]["value"]) - time_since, 1)
-            logging.info("Not ready to notify, time left: %s", remaining_time)
+            logging.debug("Not ready to notify, time left: %s", remaining_time)
             time.sleep(9)
     
 if __name__ == "__main__":
@@ -187,7 +187,7 @@ if __name__ == "__main__":
         current_config = json.loads(get_config())
         if start_notifier == True:
             start_notifier = False
-            T = Thread(target = do_notify, args=(start_time,current_config))
+            T = Thread(target = do_notify, args=(start_time,))
             T.start()
 
         if exists("./tmp/do_notify"):
