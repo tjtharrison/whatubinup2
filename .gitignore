@@ -3,3 +3,4 @@ report.json
 logs/*
 reports/*
 config/*
+*__pycache__*
