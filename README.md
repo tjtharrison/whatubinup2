@@ -19,9 +19,3 @@ Run via python3
 ```
 python3 main.py
 ```
-
-# TODO
-
-* Background change by hours log %
-* Reminder popups by minute from config file
-* 

@@ -3,7 +3,7 @@ import json
 import logging
 from datetime import date
 import time
-from tracemalloc import start 
+from tracemalloc import start
 import PySimpleGUI as sg
 from threading import Thread
 import os
@@ -87,7 +87,9 @@ def get_report():
             report = json.load(report)
     except:
         logging.info("Generating report file on first run for today")
-        with open("./reports/" + today_date + ".json", "w", encoding="UTF-8") as report_file:
+        with open(
+            "./reports/" + today_date + ".json", "w", encoding="UTF-8"
+        ) as report_file:
             report_skeleton = json.dumps(
                 {"meetings": 0, "planned_dev": 0, "unplanned_dev": 0}
             )
@@ -160,8 +162,9 @@ def show_settings():
         with open("./config/all.json", "w", encoding="UTF-8") as config_file:
             config_file.write(new_config)
             config_file.close()
-        logging.info("New settings applied: %s", new_config )
+        logging.info("New settings applied: %s", new_config)
     settings_window.close()
+
 
 def do_notify(start_time):
     while True:
@@ -174,12 +177,20 @@ def do_notify(start_time):
                 logging.debug("Notification sent, timer restarting")
                 continue
         else:
-            remaining_time = round(float(config["reminder_minutes"]["value"]) - time_since, 1)
+            remaining_time = round(
+                float(config["reminder_minutes"]["value"]) - time_since, 1
+            )
             logging.debug("Not ready to notify, time left: %s", remaining_time)
             time.sleep(9)
-    
+
+
 if __name__ == "__main__":
-    main_window = sg.Window("What U bin up 2", main_layout, keep_on_top=True)
+    main_window = sg.Window(
+        "What U bin up 2",
+        main_layout,
+        keep_on_top=True,
+        size=(180, 250)
+    )
     start_time = time.time()
     start_notifier = True
     while True:
@@ -187,14 +198,11 @@ if __name__ == "__main__":
         current_config = json.loads(get_config())
         if start_notifier == True:
             start_notifier = False
-            T = Thread(target = do_notify, args=(start_time,))
+            T = Thread(target=do_notify, args=(start_time,))
             T.start()
 
         if exists("./tmp/do_notify"):
-            sg.Popup(
-                "Log your time!",
-                font=font
-            )
+            sg.Popup("Log your time!", font=font)
             os.remove("./tmp/do_notify")
         working_hours = current_config["total_hours"]["value"]
 
@@ -202,9 +210,9 @@ if __name__ == "__main__":
         # Avoiding race condition on first launch
         try:
             hours_spent = (
-            today_report["meetings"]
-            + today_report["planned_dev"]
-            + today_report["unplanned_dev"]
+                today_report["meetings"]
+                + today_report["planned_dev"]
+                + today_report["unplanned_dev"]
             )
         except:
             hours_spent = 0
@@ -235,7 +243,9 @@ if __name__ == "__main__":
             logging.info("Unplanned Dev time logged")
             TIME_LOGGED = True
         if TIME_LOGGED is True:
-            with open("./reports/" + today_date + ".json", "w", encoding="UTF-8") as report_file:
+            with open(
+                "./reports/" + today_date + ".json", "w", encoding="UTF-8"
+            ) as report_file:
                 report_file.write(json.dumps(today_report))
                 report_file.close()
             sg.PopupNoButtons(
@@ -243,8 +253,7 @@ if __name__ == "__main__":
                 font=font,
                 auto_close_duration=1,
                 auto_close=True,
-            )    
+            )
 
-        
 
 main_window.close()
