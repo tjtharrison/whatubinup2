@@ -125,8 +125,6 @@ def show_settings():
     settings_window.close()
 
 
-
-
 if __name__ == "__main__":
     main_window = sg.Window(
         "What U bin up 2", main_layout, keep_on_top=True, size=(180, 250)

@@ -4,3 +4,5 @@ logs/*
 reports/*
 config/*
 *__pycache__*
+*.egg-info
+dist
