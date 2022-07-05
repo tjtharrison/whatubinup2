@@ -2,8 +2,12 @@
 import json
 import logging
 from datetime import date
-
+import time
+from tracemalloc import start 
 import PySimpleGUI as sg
+from threading import Thread
+import os
+from os.path import exists
 
 today = date.today()
 today_date = today.strftime("%y-%m-%d")
@@ -161,13 +165,37 @@ def show_settings():
         logging.info("New settings applied: %s", new_config )
     settings_window.close()
 
-
+def do_notify(start_time,config):
+    while True:
+        time_since = round((time.time() - start_time) / 60, 1)
+        if time_since == float(config["reminder_minutes"]["value"]):
+            with open("./tmp/do_notify", "w", encoding="UTF-8") as do_notify_file:
+                do_notify_file.write(str(time.time()))
+                start_time = time.time()
+                continue
+        else:
+            remaining_time = round(float(config["reminder_minutes"]["value"]) - time_since, 1)
+            logging.info("Not ready to notify, time left: %s", remaining_time)
+            time.sleep(9)
+    
 if __name__ == "__main__":
     main_window = sg.Window("What U bin up 2", main_layout, keep_on_top=True)
+    start_time = time.time()
+    start_notifier = True
     while True:
         today_report = json.loads(get_report())
         current_config = json.loads(get_config())
+        if start_notifier == True:
+            start_notifier = False
+            T = Thread(target = do_notify, args=(start_time,current_config))
+            T.start()
 
+        if exists("./tmp/do_notify"):
+            sg.Popup(
+                "Log your time!",
+                font=font
+            )
+            os.remove("./tmp/do_notify")
         working_hours = current_config["total_hours"]["value"]
 
         event, values = main_window.read(timeout=2)
