@@ -1,11 +1,13 @@
+""" Module to get configuration from local config """
 import json
-from os.path import exists, expanduser
-import logging 
+from os.path import expanduser
+import logging
 
 home_dir = expanduser("~") + "/whatubinup2/"
 
 
 def get_config():
+    """ Function to get configuration from local config """
     try:
         with open(home_dir + "config/all.json", encoding="utf-8") as config:
             config = json.load(config)

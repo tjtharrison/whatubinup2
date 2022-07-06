@@ -1,15 +1,16 @@
+""" Module to run notification thread """
 import json
-import os
 import time
 import logging
-from os.path import exists, expanduser
+from os.path import expanduser
 
-import bin.configuration as configuration
+from bin import configuration
 
 home_dir = expanduser("~") + "/"
 
 
 def do_notify(start_time):
+    """ Function to setup notifications in thread """
     while True:
         config = json.loads(configuration.get_config())
         time_since = round((time.time() - start_time) / 60, 1)

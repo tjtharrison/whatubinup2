@@ -1,9 +1,10 @@
+""" Module to get settings from local config """
 from os.path import expanduser
-import json 
+import json
 import logging
 from datetime import date
 import PySimpleGUI as sg
-import bin.configuration as configuration
+from bin import configuration
 
 home_dir = expanduser("~") + "/whatubinup2/"
 today = date.today()

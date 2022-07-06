@@ -1,3 +1,4 @@
+""" Module to initialise directories """
 import json
 import os
 from datetime import date
@@ -6,23 +7,24 @@ from os.path import exists, expanduser
 today = date.today()
 today_date = today.strftime("%y-%m-%d")
 
-home_dir = expanduser("~") + "/"
+home_dir = expanduser("~") + "/whatubinup2/"
 
 
 def setup_dirs():
+    """ Function to initialise directories """
     # Setup dir structure
     if not exists(home_dir + "whatubinup2"):
         dirs = [
-            home_dir + "whatubinup2",
-            home_dir + "whatubinup2/tmp",
-            home_dir + "whatubinup2/config",
-            home_dir + "whatubinup2/reports",
-            home_dir + "whatubinup2/logs",
+            home_dir,
+            home_dir + "tmp",
+            home_dir + "config",
+            home_dir + "reports",
+            home_dir + "logs",
         ]
-        for dir in dirs:
-            os.mkdir(dir)
+        for my_dir in dirs:
+            os.mkdir(my_dir)
         with open(
-            home_dir + "whatubinup2/config/all.json", "w", encoding="UTF-8"
+            home_dir + "config/all.json", "w", encoding="UTF-8"
         ) as config_file:
             default_config = json.dumps(
                 {
@@ -53,7 +55,7 @@ def setup_dirs():
             config_file.write(default_config)
             config_file.close()
         with open(
-            home_dir + "whatubinup2/reports/" + today_date + ".json",
+            home_dir + "reports/" + today_date + ".json",
             "w",
             encoding="UTF-8",
         ) as report_file:

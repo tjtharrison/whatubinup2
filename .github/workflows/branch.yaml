@@ -66,13 +66,15 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch_depth: 0
-      - name: Code linting
+      - name: Code fmt
         run: |
           pip3 install isort pylint black
           python3 -m isort $(find . -name "*.py" -not -path "./tests/*")
           python3 -m black $(find . -name "*.py" -not -path "./tests/*")
-          python3 -m pylint --fail-under=9.9 $(find . -name "*.py" -not -path "./tests/*")
       - name: Commit linted files
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Linted and formatted files
+      - name: Code linting
+        run: |
+          python3 -m pylint --fail-under=9.5 $(find . -name "*.py" -not -path "./tests/*")

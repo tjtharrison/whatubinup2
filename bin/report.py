@@ -1,5 +1,6 @@
+""" Module for creating and retrieving reports """
 from os.path import expanduser
-import json 
+import json
 import logging
 from datetime import date
 import PySimpleGUI as sg
