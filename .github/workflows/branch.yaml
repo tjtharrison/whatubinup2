@@ -1,0 +1,81 @@
+name: Branch CI
+
+on:
+  push:
+    branches:
+      - '*'
+      - '!main'
+env:
+  GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+jobs:
+  check-pr-ready:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch_depth: 0
+      - run: |
+          commit_message=$(git log -1 --pretty=format:"%s")
+          if [[ $commit_message == "WIP/"* ]]; then
+            echo "Not ready to PR yet"
+            exit 0
+          elif [[ $commit_message == "PR/"* ]]; then
+            echo "Ready to create PR!"
+            echo CREATE_PR=true >> $GITHUB_ENV
+            echo SEMVER_BUMP=$(echo $commit_message | awk -F'[\\[\\]]' '{print $2}') >> $GITHUB_ENV
+            echo COMMIT_MESSAGE=$(echo $commit_message | awk -F'[\\/\\[]' '{print $2}') >> $GITHUB_ENV
+            exit 0
+          else
+            echo "Commit message not in required format"
+            exit 1
+          fi
+      - name: Create Pull Request
+        if: env.CREATE_PR == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            try {
+              const { repo, owner } = context.repo;
+              const result = await github.rest.pulls.create({
+                title: 'Merge ${{ github.ref_name }}',
+                owner,
+                repo,
+                head: '${{ github.ref_name }}',
+                base: 'main',
+                body: [
+                  '${{ env.COMMIT_MESSAGE }}'
+                ].join('\n')
+              })
+              github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: result.data.number,
+                labels: ['${{ env.SEMVER_BUMP }}']
+              });
+            } catch(error) {
+                error_message = error.message
+                if (error_message.includes("already exists")) {
+                  console.log("PR already exists, nothing to do")
+                } else {
+                  console.error(`Something has gone wrong ${error_message}`) 
+                }
+            }
+  code-linting:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch_depth: 0
+      - name: Code fmt
+        run: |
+          pip3 install isort pylint black
+          python3 -m isort $(find . -name "*.py" -not -path "./tests/*")
+          python3 -m black $(find . -name "*.py" -not -path "./tests/*")
+      - name: Commit linted files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Linted and formatted files
+      - name: Code linting
+        run: |
+          pip3 install -r requirements.txt
+          python3 -m pylint --fail-under=9.5 $(find . -name "*.py" -not -path "./tests/*")

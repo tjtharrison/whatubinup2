@@ -6,16 +6,10 @@ import time
 from datetime import date
 from os.path import exists, expanduser
 from threading import Thread
-from tracemalloc import start
-from turtle import home
 
 import PySimpleGUI as sg
 
-import bin.configuration as configuration
-import bin.init as init
-import bin.notify as notify
-import bin.report as report
-import bin.settings as settings
+from bin import configuration, init, notify, report, settings
 
 home_dir = expanduser("~") + "/whatubinup2/"
 
@@ -32,9 +26,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        logging.FileHandler(
-            home_dir + "logs/application_" + today_date + ".log"
-        ),
+        logging.FileHandler(home_dir + "logs/application_" + today_date + ".log"),
         logging.StreamHandler(),
     ],
 )
@@ -54,13 +46,13 @@ if __name__ == "__main__":
         "What U bin up 2", main_layout, keep_on_top=True, size=(180, 250)
     )
     start_time = time.time()
-    start_notifier = True
+    START_NOTIFIER = True
 
     while True:
         today_report = json.loads(report.get_report())
         current_config = json.loads(configuration.get_config())
-        if start_notifier == True:
-            start_notifier = False
+        if START_NOTIFIER is True:
+            START_NOTIFIER = False
             T = Thread(target=notify.do_notify, args=(start_time,))
             T.start()
 
@@ -72,15 +64,15 @@ if __name__ == "__main__":
         event, values = main_window.read(timeout=2)
         # Avoiding race condition on first launch
         try:
-            hours_spent = (
+            HOURS_SPENT = (
                 today_report["meetings"]
                 + today_report["planned_dev"]
                 + today_report["unplanned_dev"]
             )
         except:
-            hours_spent = 0
+            HOURS_SPENT = 0
         main_window["current_total"].update(
-            "Total logged: " + str(hours_spent) + "/" + str(working_hours)
+            "Total logged: " + str(HOURS_SPENT) + "/" + str(working_hours)
         )
 
         TIME_LOGGED = False

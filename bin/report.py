@@ -1,7 +1,9 @@
-from os.path import expanduser
-import json 
+""" Module for creating and retrieving reports """
+import json
 import logging
 from datetime import date
+from os.path import expanduser
+
 import PySimpleGUI as sg
 
 home_dir = expanduser("~") + "/whatubinup2/"
@@ -9,10 +11,13 @@ today = date.today()
 today_date = today.strftime("%y-%m-%d")
 font = ("Open Sans", 15)
 
+
 def get_report():
     """Function to get or generate todays report"""
     try:
-        with open(home_dir + "reports/" + today_date + ".json", encoding="utf-8") as report:
+        with open(
+            home_dir + "reports/" + today_date + ".json", encoding="utf-8"
+        ) as report:
             report = json.load(report)
     except:
         logging.info("Generating report file on first run for today")
@@ -27,6 +32,7 @@ def get_report():
         logging.info("Default report_skeleton applied to report!")
         report = report_skeleton
     return json.dumps(report)
+
 
 def show_report():
     """Popup modal with current time logging stats"""
