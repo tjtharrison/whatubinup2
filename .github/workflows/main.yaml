@@ -20,7 +20,8 @@ jobs:
       - name: Bump version file
         run: |
           pr_number=$(git log --pretty=oneline | grep "Merge pull request" | head -1 | awk {'print $5'} | sed 's/#//g')
-          git log --pretty=oneline | grep "Merge pull request"
+          result=$(git log --pretty=oneline | grep "Merge pull request")
+          echo result
           echo "Checking: https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$pr_number"
           bump_type=$(curl -s "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$pr_number" --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' | jq -r '.labels[].name')
 
