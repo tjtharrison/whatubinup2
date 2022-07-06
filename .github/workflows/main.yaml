@@ -19,8 +19,9 @@ jobs:
           fetch_depth: 0
       - name: Bump version file
         run: |
-          sudo apt-get install jq -y
           pr_number=$(git log --pretty=oneline | grep "Merge pull request" | head -1 | awk {'print $5'} | sed 's/#//g')
+          echo $pr_number
+          echo "Checking: "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$pr_number"
           bump_type=$(curl -s "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$pr_number" --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' | jq -r '.labels[].name')
 
           if [[ $bump_type != "none" ]]; then
