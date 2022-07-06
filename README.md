@@ -2,20 +2,9 @@
 
 A small widget for tracking hours daily across a set of time bins.
 
-# Installation
-
-## MacOS
-
-Install tinker via brew in order to be able to launch the app
+# Build and upload
 
 ```
-brew install python-tk@3.9
+python3 setup.py sdist
 ```
 
-# Usage
-
-Run via python3 
-
-```
-python3 main.py
-```
