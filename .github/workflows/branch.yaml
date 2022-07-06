@@ -68,7 +68,6 @@ jobs:
           fetch_depth: 0
       - name: Code fmt
         run: |
-          pip3 install -r requirements.txt
           pip3 install isort pylint black
           python3 -m isort $(find . -name "*.py" -not -path "./tests/*")
           python3 -m black $(find . -name "*.py" -not -path "./tests/*")
@@ -78,4 +77,5 @@ jobs:
           commit_message: Linted and formatted files
       - name: Code linting
         run: |
+          pip3 install -r requirements.txt
           python3 -m pylint --fail-under=9.5 $(find . -name "*.py" -not -path "./tests/*")
