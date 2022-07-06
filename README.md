@@ -2,8 +2,9 @@
 
 A small widget for tracking hours daily across a set of time bins.
 
-# Build 
+# Build and upload
 
 ```
 python3 setup.py sdist
 ```
+
