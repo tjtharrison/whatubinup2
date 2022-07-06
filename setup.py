@@ -6,8 +6,8 @@ from setuptools import setup
 
 setup(
     app="main.py",
-    name="WhatUBinUp2",
-    version="1.0",
+    name="whatubinup2",
+    version="0.1",
     description="Python desktop client for managing time logging",
     author="Tim Harrison",
     author_email="tim@tjth.co",
