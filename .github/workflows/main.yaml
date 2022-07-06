@@ -9,9 +9,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   PYPI_TOKEN: "${{ secrets.PYPI_TOKEN }}"
 jobs:
-
   bump-version-and-release:
-    needs: terraform-apply
     runs-on: ubuntu-latest
     steps:
       - name: Repo checkout
