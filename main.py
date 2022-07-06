@@ -7,14 +7,17 @@ from datetime import date
 from os.path import exists, expanduser
 from threading import Thread
 from tracemalloc import start
+from turtle import home
 
 import PySimpleGUI as sg
 
 import bin.configuration as configuration
 import bin.init as init
 import bin.notify as notify
+import bin.report as report
+import bin.settings as settings
 
-home_dir = expanduser("~") + "/"
+home_dir = expanduser("~") + "/whatubinup2/"
 
 today = date.today()
 today_date = today.strftime("%y-%m-%d")
@@ -30,7 +33,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.FileHandler(
-            home_dir + "whatubinup2/logs/application_" + today_date + ".log"
+            home_dir + "logs/application_" + today_date + ".log"
         ),
         logging.StreamHandler(),
     ],
@@ -46,85 +49,6 @@ main_layout = [
     [sg.Button("Exit", font=font)],
 ]
 
-# Open the daily report
-def get_report():
-    """App to get or generate todays report"""
-    with open(
-        home_dir + "whatubinup2/reports/" + today_date + ".json", encoding="utf-8"
-    ) as report:
-        report = json.load(report)
-    return json.dumps(report)
-
-
-def show_report():
-    """Popup modal with current time logging stats"""
-    logging.info("Report opened")
-    today_report = json.loads(get_report())
-    layout = [
-        [sg.Text("Meetings: " + str(today_report["meetings"]), font=font)],
-        [sg.Text("Planned Dev: " + str(today_report["planned_dev"]), font=font)],
-        [sg.Text("Support: " + str(today_report["unplanned_dev"]), font=font)],
-    ]
-    report_window = sg.Window(
-        "Time Report", layout, use_default_focus=False, finalize=True
-    )
-    report_window.read()
-    report_window.close()
-
-
-def show_settings():
-    """Popup modal with current settings"""
-    logging.info("Settings opened")
-    config = json.loads(configuration.get_config())
-    settings_layout = [
-        [sg.Text("Settings", font=font)],
-        [
-            sg.Text("Total Hours", font=font),
-            sg.Text(
-                "?",
-                background_color="magenta",
-                tooltip=config["total_hours"]["description"],
-            ),
-            sg.InputText(default_text=config["total_hours"]["value"], font=font),
-        ],
-        [
-            sg.Text("Reminder Minutes", font=font),
-            sg.Text(
-                "?",
-                tooltip=config["reminder_minutes"]["description"],
-                background_color="magenta",
-            ),
-            sg.InputText(default_text=config["reminder_minutes"]["value"], font=font),
-        ],
-        [sg.Button("Submit", font=font)],
-    ]
-    settings_window = sg.Window(
-        "Time Report", settings_layout, use_default_focus=False, finalize=True
-    )
-    event, setting_values = settings_window.read()
-
-    if event == "Submit":
-        new_config = json.dumps(
-            {
-                "total_hours": {
-                    "description": "Total number of hours in working day",
-                    "value": setting_values[0],
-                },
-                "reminder_minutes": {
-                    "description": "After how many minutes would you like a reminder",
-                    "value": setting_values[1],
-                },
-            }
-        )
-        with open(
-            home_dir + "whatubinup2/config/all.json", "w", encoding="UTF-8"
-        ) as config_file:
-            config_file.write(new_config)
-            config_file.close()
-        logging.info("New settings applied: %s", new_config)
-    settings_window.close()
-
-
 if __name__ == "__main__":
     main_window = sg.Window(
         "What U bin up 2", main_layout, keep_on_top=True, size=(180, 250)
@@ -133,16 +57,16 @@ if __name__ == "__main__":
     start_notifier = True
 
     while True:
-        today_report = json.loads(get_report())
+        today_report = json.loads(report.get_report())
         current_config = json.loads(configuration.get_config())
         if start_notifier == True:
             start_notifier = False
             T = Thread(target=notify.do_notify, args=(start_time,))
             T.start()
 
-        if exists(home_dir + "whatubinup2/tmp/do_notify"):
+        if exists(home_dir + "tmp/do_notify"):
             sg.Popup("Log your time!", font=font)
-            os.remove(home_dir + "whatubinup2/tmp/do_notify")
+            os.remove(home_dir + "tmp/do_notify")
         working_hours = current_config["total_hours"]["value"]
 
         event, values = main_window.read(timeout=2)
@@ -163,9 +87,9 @@ if __name__ == "__main__":
         if event in (sg.WIN_CLOSED, "Exit"):
             break
         if event == "Report":
-            show_report()
+            report.show_report()
         if event == "Settings":
-            show_settings()
+            settings.show_settings()
         if event == "Meetings":
             today_report["meetings"] = today_report["meetings"] + 1
             NEW_TOTAL = today_report["meetings"]
@@ -183,7 +107,7 @@ if __name__ == "__main__":
             TIME_LOGGED = True
         if TIME_LOGGED is True:
             with open(
-                home_dir + "whatubinup2/reports/" + today_date + ".json",
+                home_dir + "reports/" + today_date + ".json",
                 "w",
                 encoding="UTF-8",
             ) as report_file:
