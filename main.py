@@ -60,7 +60,6 @@ if __name__ == "__main__":
             sg.Popup("Log your time!", font=font)
             os.remove(home_dir + "tmp/do_notify")
         working_hours = current_config["total_hours"]["value"]
-
         event, values = main_window.read(timeout=2)
         # Avoiding race condition on first launch
         try:
