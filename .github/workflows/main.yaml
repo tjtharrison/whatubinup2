@@ -15,7 +15,8 @@ jobs:
       - name: Repo checkout
         uses: actions/checkout@v3
         with:
-          ref: main
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
       - name: Bump version file
         run: |
           pr_number=$(git log --pretty=oneline | grep "Merge pull request" | head -1 | awk {'print $5'} | sed 's/#//g')
