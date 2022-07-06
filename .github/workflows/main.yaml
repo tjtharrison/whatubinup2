@@ -50,7 +50,7 @@ jobs:
             current_version=$(cat setup.cfg | grep "version" | awk {'print $3'})
             echo "Current version: $current_version"
             echo "Getting new version"
-            new_version=$(increment_version $current_version $1)
+            new_version=$(increment_version $current_version $bump_type)
             echo "New version: $new_version"
             echo "Updating setup.cfg"
             sed -i "s/$current_version/$new_version/g" setup.cfg
@@ -82,11 +82,14 @@ jobs:
       - name: Build and publish
         if: env.DO_RELEASE == 'true'
         run: |
+          echo "Creating pypi login file"
           echo "[pypi]
           username = __token__
           password = $PYPI_TOKEN" >> ~/.pypirc
-
+          
+          echo "Building dist.."
           python3 setup.py sdist
+          echo "Validating dist.."
           status=$(twine check dist/*)
 
           if [[ $status == *"PASSED"* ]]; then
