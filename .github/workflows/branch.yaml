@@ -70,8 +70,8 @@ jobs:
         run: |
           pip3 install isort pylint black
           python3 -m isort $(find . -name "*.py" -not -path "./tests/*")
-          /usr/local/bin/black $(find . -name "*.py" -not -path "./tests/*")
-          /usr/local/bin/pylint --fail-under=9.9 $(find . -name "*.py" -not -path "./tests/*")
+          /home/ubuntu/.local/bin/black $(find . -name "*.py" -not -path "./tests/*")
+          /home/ubuntu/.local/bin/pylint --fail-under=9.9 $(find . -name "*.py" -not -path "./tests/*")
       - name: Commit linted files
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
