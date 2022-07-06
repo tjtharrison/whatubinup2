@@ -1,15 +1,18 @@
 """ Module to get settings from local config """
-from os.path import expanduser
 import json
 import logging
 from datetime import date
+from os.path import expanduser
+
 import PySimpleGUI as sg
+
 from bin import configuration
 
 home_dir = expanduser("~") + "/whatubinup2/"
 today = date.today()
 today_date = today.strftime("%y-%m-%d")
 font = ("Open Sans", 15)
+
 
 def show_settings():
     """Popup modal with current settings"""
@@ -55,9 +58,7 @@ def show_settings():
                 },
             }
         )
-        with open(
-            home_dir + "config/all.json", "w", encoding="UTF-8"
-        ) as config_file:
+        with open(home_dir + "config/all.json", "w", encoding="UTF-8") as config_file:
             config_file.write(new_config)
             config_file.close()
         logging.info("New settings applied: %s", new_config)

@@ -9,11 +9,7 @@ from threading import Thread
 
 import PySimpleGUI as sg
 
-from bin import configuration
-from bin import init
-from bin import notify
-from bin import report
-from bin import settings
+from bin import configuration, init, notify, report, settings
 
 home_dir = expanduser("~") + "/whatubinup2/"
 
@@ -30,9 +26,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        logging.FileHandler(
-            home_dir + "logs/application_" + today_date + ".log"
-        ),
+        logging.FileHandler(home_dir + "logs/application_" + today_date + ".log"),
         logging.StreamHandler(),
     ],
 )

@@ -11,7 +11,7 @@ home_dir = expanduser("~") + "/whatubinup2/"
 
 
 def setup_dirs():
-    """ Function to initialise directories """
+    """Function to initialise directories"""
     # Setup dir structure
     if not exists(home_dir + "whatubinup2"):
         dirs = [
@@ -23,9 +23,7 @@ def setup_dirs():
         ]
         for my_dir in dirs:
             os.mkdir(my_dir)
-        with open(
-            home_dir + "config/all.json", "w", encoding="UTF-8"
-        ) as config_file:
+        with open(home_dir + "config/all.json", "w", encoding="UTF-8") as config_file:
             default_config = json.dumps(
                 {
                     "total_hours": {
