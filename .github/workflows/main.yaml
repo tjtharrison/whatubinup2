@@ -19,10 +19,14 @@ jobs:
           fetch-depth: 0
       - name: Bump version file
         run: |
+          echo "Getting pr_number"
           pr_number=$(git log --pretty=oneline | grep "Merge pull request" | head -1 | awk {'print $5'} | sed 's/#//g')
+          echo "Checking pr number $pr_number"
+          echo "Getting bump_type:"
           bump_type=$(curl -s "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$pr_number" | jq -r '.labels[].name')
-
+          echo "Bump type: $bump_type"
           if [[ $bump_type != "none" ]]; then
+            echo "bump_type is not none.. Proceeding to bump as $bump_type"
             increment_version() {
               if [[ $2 == "patch" ]]; then
                   increment="2"
@@ -42,12 +46,15 @@ jobs:
               if [ $increment -lt 1 ]; then array[1]=0; fi
               echo $(local IFS=$delimiter ; echo "${array[*]}")
             }
-
+            echo "Getting current version.."
             current_version=$(cat setup.cfg | grep "version" | awk {'print $3'})
-
+            echo "Current version: $current_version"
+            echo "Getting new version"
             new_version=$(increment_version $current_version $1)
-
+            echo "New version: $new_version"
+            echo "Updating setup.cfg"
             sed -i "s/$current_version/$new_version/g" setup.cfg
+            echo "Done!"
             echo DO_RELEASE="true" >> $GITHUB_ENV
             echo NEW_VERSION="$new_version" >> $GITHUB_ENV
           else
