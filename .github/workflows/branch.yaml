@@ -81,7 +81,7 @@ jobs:
           python3 -m pylint --fail-under=8.0 $(find . -name "*.py" -not -path "./tests/*")
       - name: Test build
         run: |
-          pip3 install twine
+          python3 -m pip install --user --upgrade setuptools wheel twine
           echo "Building dist.."
           python3 setup.py sdist
           echo "Validating dist.."
