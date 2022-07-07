@@ -84,7 +84,6 @@ jobs:
         run: |
           sudo apt-get install pandoc -y
           pip3 install twine
-          pip3 install pypandoc
           echo "Creating pypi login file"
           echo "[pypi]
           username = __token__
