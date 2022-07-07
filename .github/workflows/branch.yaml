@@ -81,7 +81,7 @@ jobs:
           python3 -m pylint --fail-under=8.0 $(find . -name "*.py" -not -path "./tests/*")
       - name: Test build
         run: |
-          sudo apt-get install pandoc -y
+          which twine
           pip3 install twine
           echo "Building dist.."
           python3 setup.py sdist
