@@ -68,7 +68,8 @@ if __name__ == "__main__":
                 + today_report["planned_dev"]
                 + today_report["unplanned_dev"]
             )
-        except:
+        except TypeError:
+            logging.info("No hours reported yet")
             HOURS_SPENT = 0
         main_window["current_total"].update(
             "Total logged: " + str(HOURS_SPENT) + "/" + str(working_hours)

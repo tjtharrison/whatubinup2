@@ -6,3 +6,4 @@ config/*
 *__pycache__*
 *.egg-info
 dist
+.DS_Store

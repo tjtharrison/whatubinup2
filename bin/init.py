@@ -13,7 +13,7 @@ home_dir = expanduser("~") + "/whatubinup2/"
 def setup_dirs():
     """Function to initialise directories"""
     # Setup dir structure
-    if not exists(home_dir + "whatubinup2"):
+    if not exists(home_dir):
         dirs = [
             home_dir,
             home_dir + "tmp",

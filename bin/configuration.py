@@ -11,7 +11,7 @@ def get_config():
     try:
         with open(home_dir + "config/all.json", encoding="utf-8") as config:
             config = json.load(config)
-    except:
+    except FileNotFoundError:
         logging.info("Generating config file on first run")
         with open(home_dir + "config/all.json", "w", encoding="UTF-8") as config_file:
             default_config = json.dumps(
