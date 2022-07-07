@@ -1,0 +1,103 @@
+name: Deploy module
+
+on:
+  push:
+    branches:
+      main
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PYPI_TOKEN: "${{ secrets.PYPI_TOKEN }}"
+jobs:
+  bump-version-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Bump version file
+        run: |
+          echo "Getting pr_number"
+          pr_number=$(git log --pretty=oneline | grep "Merge pull request" | head -1 | awk {'print $5'} | sed 's/#//g')
+          echo "Checking pr number $pr_number"
+          echo "Getting bump_type:"
+          bump_type=$(curl -s "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$pr_number" | jq -r '.labels[].name')
+          echo "Bump type: $bump_type"
+          if [[ $bump_type != "none" ]]; then
+            echo "bump_type is not none.. Proceeding to bump as $bump_type"
+            increment_version() {
+              if [[ $2 == "patch" ]]; then
+                  increment="2"
+              elif [[ $2 == "minor" ]]; then
+                  increment="1"
+              elif [[ $2 == "major" ]]; then
+                  increment="0"
+              else
+                  echo "Something has gone wrong, invalid semver increment"
+                  exit 1
+              fi
+
+              local delimiter=.
+              local array=($(echo "$1" | tr $delimiter '\n'))
+              array[$increment]=$((array[$increment]+1))
+              if [ $increment -lt 2 ]; then array[2]=0; fi
+              if [ $increment -lt 1 ]; then array[1]=0; fi
+              echo $(local IFS=$delimiter ; echo "${array[*]}")
+            }
+            echo "Getting current version.."
+            current_version=$(cat setup.cfg | grep "version" | awk {'print $3'})
+            echo "Current version: $current_version"
+            echo "Getting new version"
+            new_version=$(increment_version $current_version $bump_type)
+            echo "New version: $new_version"
+            echo "Updating setup.cfg"
+            sed -i "s/$current_version/$new_version/g" setup.cfg
+            echo "Done!"
+            echo DO_RELEASE="true" >> $GITHUB_ENV
+            echo NEW_VERSION="$new_version" >> $GITHUB_ENV
+          else
+            echo "Not bumping module version"
+            echo DO_RELEASE="false" >> $GITHUB_ENV
+          fi
+      - name: Create Release
+        if: env.DO_RELEASE == 'true'
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          NEW_VERSION: ${{ env.NEW_VERSION }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.NEW_VERSION }}
+          release_name: Release ${{ env.NEW_VERSION }}
+          draft: false
+          prerelease: false 
+
+      - name: Commit updated version files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Bumped version
+      ## Build and publish
+      - name: Build and publish
+        if: env.DO_RELEASE == 'true'
+        run: |
+          pip3 install twine
+          echo "Creating pypi login file"
+          echo "[pypi]
+          username = __token__
+          password = $PYPI_TOKEN" >> ~/.pypirc
+          
+          echo "Building dist.."
+          python3 setup.py sdist
+          echo "Validating dist.."
+          status=$(twine check dist/*)
+
+          if [[ $status == *"PASSED"* ]]; then
+              echo "twine check complete, uploading new version"
+              twine upload dist/*
+          else
+              echo "Twine check failed"
+              echo "$status"
+              exit 1
+          fi
