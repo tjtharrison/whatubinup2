@@ -7,3 +7,4 @@ config/*
 *.egg-info
 dist
 .DS_Store
+build
