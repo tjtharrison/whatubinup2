@@ -82,7 +82,8 @@ jobs:
       - name: Test build
         run: |
           sudo apt-get install pandoc -y
-          pip3 install twine pypandoc
+          pip3 install twine
+          pip3 install pypandoc
           echo "Building dist.."
           python3 setup.py sdist
           echo "Validating dist.."
