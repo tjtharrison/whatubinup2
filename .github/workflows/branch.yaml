@@ -82,7 +82,7 @@ jobs:
       - name: Test build
         if: env.CREATE_PR == 'true'
         run: |
-          pip3 install twine
+          pip3 install twine pypandoc
           echo "Building dist.."
           python3 setup.py sdist
           echo "Validating dist.."
