@@ -19,7 +19,7 @@ def get_report():
             home_dir + "reports/" + today_date + ".json", encoding="utf-8"
         ) as report:
             report = json.load(report)
-    except:
+    except FileNotFoundError:
         logging.info("Generating report file on first run for today")
         with open(
             home_dir + "reports/" + today_date + ".json", "w", encoding="UTF-8"
