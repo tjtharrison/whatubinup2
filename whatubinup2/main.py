@@ -8,8 +8,7 @@ from os.path import exists, expanduser
 from threading import Thread
 
 import PySimpleGUI as sg
-
-from bin import configuration, init, notify, report, settings
+from bin import configuration, dirs, notify, report, settings
 
 home_dir = expanduser("~") + "/whatubinup2/"
 
@@ -20,7 +19,7 @@ font = ("Open Sans", 15)
 sg.theme("DarkTeal9")
 
 # Setup dirs
-init.setup_dirs()
+dirs.setup_dirs()
 
 logging.basicConfig(
     level=logging.DEBUG,
