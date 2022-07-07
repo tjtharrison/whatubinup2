@@ -80,7 +80,6 @@ jobs:
           pip3 install -r requirements.txt
           python3 -m pylint --fail-under=8.0 $(find . -name "*.py" -not -path "./tests/*")
       - name: Test build
-        if: env.CREATE_PR == 'true'
         run: |
           pip3 install twine pypandoc
           echo "Building dist.."
