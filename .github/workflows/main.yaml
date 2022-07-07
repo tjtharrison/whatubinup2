@@ -82,7 +82,7 @@ jobs:
       - name: Build and publish
         if: env.DO_RELEASE == 'true'
         run: |
-          pip3 install twine pypandoc
+          pip3 install twine
           echo "Creating pypi login file"
           echo "[pypi]
           username = __token__
