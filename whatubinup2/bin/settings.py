@@ -5,7 +5,6 @@ from datetime import date
 from os.path import expanduser
 
 import PySimpleGUI as sg
-
 from bin import configuration
 
 home_dir = expanduser("~") + "/whatubinup2/"

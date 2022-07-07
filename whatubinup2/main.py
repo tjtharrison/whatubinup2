@@ -8,7 +8,6 @@ from os.path import exists, expanduser
 from threading import Thread
 
 import PySimpleGUI as sg
-
 from bin import configuration, dirs, notify, report, settings
 
 home_dir = expanduser("~") + "/whatubinup2/"
