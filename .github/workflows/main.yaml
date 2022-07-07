@@ -83,7 +83,8 @@ jobs:
         if: env.DO_RELEASE == 'true'
         run: |
           pip3 install pypandoc
-          sudo apt-get install pandoc
+          sudo apt-get install pandoc -y
+          pip
           echo "Creating pypi login file"
           echo "[pypi]
           username = __token__
@@ -92,4 +93,4 @@ jobs:
           echo "Building dist.."
           python3 setup.py sdist
 
-          twine upload dist/*
+          ~/.local/bin/twine upload dist/*

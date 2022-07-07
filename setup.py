@@ -1,18 +1,20 @@
 """
 Script to install whatubinup2
 """
-from glob import glob
+from pathlib import Path
 
-import pypandoc
-from setuptools import find_packages, setup
+from setuptools import setup
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 if __name__ == "__main__":
     setup(
         description="Python desktop client for managing time logging",
-        author="Tim Harrison",
+        author="TJTH",
         author_email="tim@tjth.co",
-        url="https://github.com/teamjtharrison/what_u_bin_up_2",
-        long_description=pypandoc.convert_file("README.md", "rst"),
+        url="https://github.com/teamjtharrison/whatubinup2",
+        long_description=long_description,
         long_description_content_type="text/markdown",
         package_dir={"": "whatubinup2"},
         packages=[

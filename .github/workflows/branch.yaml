@@ -79,18 +79,18 @@ jobs:
         run: |
           pip3 install -r requirements.txt
           python3 -m pylint --fail-under=8.0 $(find . -name "*.py" -not -path "./tests/*")
-      # - name: Test build
-      #   run: |
-      #     pip3 install twine
-      #     echo "Building dist.."
-      #     python3 setup.py sdist
-      #     echo "Validating dist.."
-      #     status=$(twine check dist/*)
+      - name: Test build
+        run: |
+          python3 -m pip install --user --upgrade setuptools wheel twine
+          echo "Building dist.."
+          python3 setup.py sdist
+          echo "Validating dist.."
+          status=$(~/.local/bin/twine check dist/*)
 
-      #     if [[ $status == *"PASSED"* ]]; then
-      #         echo "twine check complete"
-      #     else
-      #         echo "Twine check failed"
-      #         echo "$status"
-      #         exit 1
-      #     fi
+          if [[ $status == *"PASSED"* ]]; then
+              echo "twine check complete"
+          else
+              echo "Twine check failed"
+              echo "$status"
+              exit 1
+          fi
