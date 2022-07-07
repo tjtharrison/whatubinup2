@@ -14,5 +14,5 @@ if __name__ == "__main__":
         url="https://github.com/teamjtharrison/what_u_bin_up_2",
         long_description = ("README.md").read_text(),
         long_description_content_type="text/markdown",
-        packages=find_packages(),
+        packages=find_packages()
     )
