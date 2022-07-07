@@ -82,6 +82,7 @@ jobs:
       - name: Build and publish
         if: env.DO_RELEASE == 'true'
         run: |
+          sudo apt-get install pandoc -y
           pip3 install twine pypandoc
           echo "Creating pypi login file"
           echo "[pypi]
