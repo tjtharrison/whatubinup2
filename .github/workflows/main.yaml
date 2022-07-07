@@ -82,9 +82,7 @@ jobs:
       - name: Build and publish
         if: env.DO_RELEASE == 'true'
         run: |
-          pip3 install pypandoc
-          sudo apt-get install pandoc -y
-          pip
+          python3 -m pip install --user --upgrade setuptools wheel twine
           echo "Creating pypi login file"
           echo "[pypi]
           username = __token__
