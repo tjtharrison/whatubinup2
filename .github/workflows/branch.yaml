@@ -85,7 +85,7 @@ jobs:
           echo "Building dist.."
           python3 setup.py sdist
           echo "Validating dist.."
-          status=$(twine check dist/*)
+          status=$(~/.local/bin/twine check dist/*)
 
           if [[ $status == *"PASSED"* ]]; then
               echo "twine check complete"
