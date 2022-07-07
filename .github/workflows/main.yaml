@@ -93,4 +93,4 @@ jobs:
           echo "Building dist.."
           python3 setup.py sdist
 
-          twine upload dist/*
+          ~/.local/bin/twine upload dist/*
