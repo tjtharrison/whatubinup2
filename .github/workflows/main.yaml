@@ -90,14 +90,5 @@ jobs:
           
           echo "Building dist.."
           python3 setup.py sdist
-          echo "Validating dist.."
-          status=$(twine check dist/*)
 
-          if [[ $status == *"PASSED"* ]]; then
-              echo "twine check complete, uploading new version"
-              twine upload dist/*
-          else
-              echo "Twine check failed"
-              echo "$status"
-              exit 1
-          fi
+          twine upload dist/*
