@@ -203,7 +203,7 @@ def get_report():
     return json.dumps(report)
 
 
-def do_notify(start_time,stop_notify):
+def do_notify(start_time, stop_notify):
     """Function to setup notifications in thread"""
     while True:
         config = json.loads(get_config())
@@ -222,6 +222,7 @@ def do_notify(start_time,stop_notify):
             )
             logging.debug("Not ready to notify, %s minutes left", remaining_time)
             time.sleep(9)
+
 
 def show_report():
     """Popup modal with current time logging stats"""
@@ -254,7 +255,10 @@ if __name__ == "__main__":
             stop_notify = False
             T = Thread(
                 target=do_notify,
-                args=(start_time,lambda : stop_notify,)
+                args=(
+                    start_time,
+                    lambda: stop_notify,
+                ),
             )
             T.start()
 
