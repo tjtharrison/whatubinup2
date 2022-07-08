@@ -83,7 +83,7 @@ jobs:
         run: |
           python3 -m pip install --user --upgrade setuptools wheel twine
           echo "Building dist.."
-          python3 setup.py sdist
+          python3 setup.py bdist_wheel
           echo "Validating dist.."
           status=$(~/.local/bin/twine check dist/*)
 

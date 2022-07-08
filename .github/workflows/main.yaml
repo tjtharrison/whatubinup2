@@ -89,6 +89,6 @@ jobs:
           password = $PYPI_TOKEN" >> ~/.pypirc
           
           echo "Building dist.."
-          python3 setup.py sdist
+          python3 setup.py bdist_wheel
 
           ~/.local/bin/twine upload dist/*

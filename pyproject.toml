@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whatubinup2"
+version = "0.1.11"
+description = "Python desktop client for managing time logging"
+readme = "README.md"
+authors = [{ name = "TJTH", email = "tim@tjth.co" }]
+keywords = ["python", "timelog"]
+dependencies = [
+    "PySimpleGUI >= 4.60.1"
+]
+
+requires-python = ">=3.9"
+
+[project.urls]
+Homepage = "https://github.com/teamjtharrison/whatubinup2"
+
+[project.scripts]
+whatubinup2 = "whatubinup2.__main__:main"
