@@ -28,17 +28,13 @@ default_config = json.dumps(
             "value": 10,
         },
         "time_bins": [
-            { 
-                "name": "default",
-                "nice_name": "Default",
-                "description": "description"
-            },
-            { 
+            {"name": "default", "nice_name": "Default", "description": "description"},
+            {
                 "name": "meetings",
                 "nice_name": "Meetings",
-                "description": "Time spent in meetings"
-            }
-        ]
+                "description": "Time spent in meetings",
+            },
+        ],
     }
 )
 
@@ -68,6 +64,7 @@ logging.basicConfig(
         logging.StreamHandler(),
     ],
 )
+
 
 def get_config():
     """Function to get configuration from local config"""
@@ -152,8 +149,8 @@ def get_report():
             report_skeleton = {}
 
             for bin in json.loads(get_config())["time_bins"]:
-                report_skeleton.update({bin["name"] : 0})
-            
+                report_skeleton.update({bin["name"]: 0})
+
             report_file.write(json.dumps(report_skeleton))
             report_file.close()
         logging.info("Default report_skeleton applied to report!")
@@ -187,7 +184,15 @@ def show_report():
     logging.info("Report opened")
     today_report = json.loads(get_report())
     layout = [
-        [[sg.Text(time_bin["nice_name"] + ": " + str(today_report[time_bin["name"]]), font=font)] for time_bin in json.loads(get_config())["time_bins"]]
+        [
+            [
+                sg.Text(
+                    time_bin["nice_name"] + ": " + str(today_report[time_bin["name"]]),
+                    font=font,
+                )
+            ]
+            for time_bin in json.loads(get_config())["time_bins"]
+        ]
     ]
     report_window = sg.Window(
         "Time Report", layout, use_default_focus=False, finalize=True
@@ -195,8 +200,12 @@ def show_report():
     report_window.read()
     report_window.close()
 
+
 main_layout = [
-    [[sg.Button("Log " + time_bin["nice_name"], font=font)] for time_bin in json.loads(get_config())["time_bins"]],
+    [
+        [sg.Button("Log " + time_bin["nice_name"], font=font)]
+        for time_bin in json.loads(get_config())["time_bins"]
+    ],
     [sg.Text("", font=font, key="current_total")],
     [sg.Button("Report", font=font)],
     [sg.Button("Settings", font=font)],
@@ -206,9 +215,7 @@ main_layout = [
 
 def main():
     """Main app launch function"""
-    main_window = sg.Window(
-        "What U bin up 2", main_layout, keep_on_top=True
-    )
+    main_window = sg.Window("What U bin up 2", main_layout, keep_on_top=True)
     start_notifier = True
     while True:
         today_report = json.loads(get_report())
@@ -249,7 +256,7 @@ def main():
         if event.startswith("Log"):
             # Iterate over bins looking for event
             for bin in json.loads(get_config())["time_bins"]:
-                raw_event = event.replace("Log ","")
+                raw_event = event.replace("Log ", "")
                 if raw_event == bin["nice_name"]:
                     today_report[bin["name"]] = today_report[bin["name"]] + 1
                     new_total = today_report[bin["name"]]
