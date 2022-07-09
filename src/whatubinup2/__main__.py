@@ -27,20 +27,18 @@ default_config = json.dumps(
             "description": "After how many minutes would you like a reminder",
             "value": 10,
         },
-        "time_bins": {
-            "meetings": {
-                "description": "Time spent in meetings",
+        "time_bins": [
+            { 
+                "name": "default",
+                "nice_name": "Default",
+                "description": "description"
+            },
+            { 
+                "name": "meetings",
                 "nice_name": "Meetings",
-            },
-            "planned_dev": {
-                "description": "Planned developer time",
-                "nice_name": "Planned Dev Time",
-            },
-            "unplanned_dev": {
-                "description": "Unplanned developer time (Eg support)",
-                "nice_name": "Unplanned Dev Time",
-            },
-        },
+                "description": "Time spent in meetings"
+            }
+        ]
     }
 )
 
@@ -70,17 +68,6 @@ logging.basicConfig(
         logging.StreamHandler(),
     ],
 )
-
-main_layout = [
-    [sg.Button("Meetings", font=font)],
-    [sg.Button("Planned Dev", font=font)],
-    [sg.Button("Unplanned Dev", font=font)],
-    [sg.Text("", font=font, key="current_total")],
-    [sg.Button("Report", font=font)],
-    [sg.Button("Settings", font=font)],
-    [sg.Button("Exit", font=font)],
-]
-
 
 def get_config():
     """Function to get configuration from local config"""
@@ -160,10 +147,13 @@ def get_report():
         with open(
             home_dir + "reports/" + today_date + ".json", "w", encoding="UTF-8"
         ) as report_file:
-            report_skeleton = json.dumps(
-                {"meetings": 0, "planned_dev": 0, "unplanned_dev": 0}
-            )
-            report_file.write(report_skeleton)
+
+            report_skeleton = {}
+
+            for bin in json.loads(get_config())["time_bins"]:
+                report_skeleton.update({bin["name"] : 0})
+            
+            report_file.write(json.dumps(report_skeleton))
             report_file.close()
         logging.info("Default report_skeleton applied to report!")
         report = report_skeleton
@@ -196,9 +186,7 @@ def show_report():
     logging.info("Report opened")
     today_report = json.loads(get_report())
     layout = [
-        [sg.Text("Meetings: " + str(today_report["meetings"]), font=font)],
-        [sg.Text("Planned Dev: " + str(today_report["planned_dev"]), font=font)],
-        [sg.Text("Support: " + str(today_report["unplanned_dev"]), font=font)],
+        [[sg.Text(time_bin["nice_name"] + ": " + str(today_report[time_bin["name"]]), font=font)] for time_bin in json.loads(get_config())["time_bins"]]
     ]
     report_window = sg.Window(
         "Time Report", layout, use_default_focus=False, finalize=True
@@ -206,11 +194,19 @@ def show_report():
     report_window.read()
     report_window.close()
 
+main_layout = [
+    [[sg.Button("Log " + time_bin["nice_name"], font=font)] for time_bin in json.loads(get_config())["time_bins"]],
+    [sg.Text("", font=font, key="current_total")],
+    [sg.Button("Report", font=font)],
+    [sg.Button("Settings", font=font)],
+    [sg.Button("Exit", font=font)],
+]
+
 
 def main():
     """Main app launch function"""
     main_window = sg.Window(
-        "What U bin up 2", main_layout, keep_on_top=True, size=(180, 250)
+        "What U bin up 2", main_layout, keep_on_top=True
     )
     start_notifier = True
     while True:
@@ -231,13 +227,10 @@ def main():
         event, values = main_window.read(timeout=2)
         # Avoiding race condition on first launch
         try:
-            hours_spent = (
-                today_report["meetings"]
-                + today_report["planned_dev"]
-                + today_report["unplanned_dev"]
-            )
-        except TypeError:
-            logging.info("No hours reported yet")
+            hours_spent = 0
+            for bin in today_report:
+                hours_spent += today_report[bin]
+        except KeyError:
             hours_spent = 0
         main_window["current_total"].update(
             "Total logged: " + str(hours_spent) + "/" + str(working_hours)
@@ -246,28 +239,21 @@ def main():
         time_logged = False
         if event in (sg.WIN_CLOSED, "Exit"):
             logging.debug("New event: %s", values)
-            print("Mischief managed")
             notify_thread.join()
             break
         if event == "Report":
             show_report()
         if event == "Settings":
             show_settings()
-        if event == "Meetings":
-            today_report["meetings"] = today_report["meetings"] + 1
-            new_total = today_report["meetings"]
-            logging.info("Meeting time logged")
-            time_logged = True
-        if event == "Planned Dev":
-            today_report["planned_dev"] = today_report["planned_dev"] + 1
-            new_total = today_report["planned_dev"]
-            logging.info("Planned Dev time logged")
-            time_logged = True
-        if event == "Unplanned Dev":
-            today_report["unplanned_dev"] = today_report["unplanned_dev"] + 1
-            new_total = today_report["unplanned_dev"]
-            logging.info("Unplanned Dev time logged")
-            time_logged = True
+        if event.startswith("Log"):
+            # Iterate over bins looking for event
+            for bin in json.loads(get_config())["time_bins"]:
+                raw_event = event.replace("Log ","")
+                if raw_event == bin["nice_name"]:
+                    today_report[bin["name"]] = today_report[bin["name"]] + 1
+                    new_total = today_report[bin["name"]]
+                    logging.info("Meeting time logged")
+                    time_logged = True
         if time_logged is True:
             with open(
                 home_dir + "reports/" + today_date + ".json",
