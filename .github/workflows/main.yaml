@@ -47,13 +47,13 @@ jobs:
               echo $(local IFS=$delimiter ; echo "${array[*]}")
             }
             echo "Getting current version.."
-            current_version=$(cat setup.cfg | grep "version" | awk {'print $3'})
+            current_version=$(cat pyproject.toml | grep "version" | awk {'print $3'} | sed 's/"//g')
             echo "Current version: $current_version"
             echo "Getting new version"
             new_version=$(increment_version $current_version $bump_type)
             echo "New version: $new_version"
-            echo "Updating setup.cfg"
-            sed -i "s/$current_version/$new_version/g" setup.cfg
+            echo "Updating pyproject.toml "
+            sed -i "s/$current_version/$new_version/g" pyproject.toml 
             echo "Done!"
             echo DO_RELEASE="true" >> $GITHUB_ENV
             echo NEW_VERSION="$new_version" >> $GITHUB_ENV
