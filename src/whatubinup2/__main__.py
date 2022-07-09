@@ -17,6 +17,33 @@ font = ("Open Sans", 15)
 
 sg.theme("DarkTeal9")
 
+default_config = json.dumps(
+    {
+        "total_hours": {
+            "description": "Total number of hours in working day",
+            "value": 8,
+        },
+        "reminder_minutes": {
+            "description": "After how many minutes would you like a reminder",
+            "value": 10,
+        },
+        "time_bins": {
+            "meetings": {
+                "description": "Time spent in meetings",
+                "nice_name": "Meetings",
+            },
+            "planned_dev": {
+                "description": "Planned developer time",
+                "nice_name": "Planned Dev Time",
+            },
+            "unplanned_dev": {
+                "description": "Unplanned developer time (Eg support)",
+                "nice_name": "Unplanned Dev Time",
+            },
+        },
+    }
+)
+
 # Setup dirs
 if not exists(home_dir):
     dirs = [
@@ -28,45 +55,11 @@ if not exists(home_dir):
     ]
     for my_dir in dirs:
         os.mkdir(my_dir)
-    with open(home_dir + "config/all.json", "w", encoding="UTF-8") as config_file:
-        default_config = json.dumps(
-            {
-                "total_hours": {
-                    "description": "Total number of hours in working day",
-                    "value": 8,
-                },
-                "reminder_minutes": {
-                    "description": "After how many minutes would you like a reminder",
-                    "value": 10,
-                },
-                "time_bins": {
-                    "meetings": {
-                        "description": "Time spent in meetings",
-                        "nice_name": "Meetings",
-                    },
-                    "planned_dev": {
-                        "description": "Planned developer time",
-                        "nice_name": "Planned Dev Time",
-                    },
-                    "unplanned_dev": {
-                        "description": "Unplanned developer time (Eg support)",
-                        "nice_name": "Unplanned Dev Time",
-                    },
-                },
-            }
-        )
-        config_file.write(default_config)
-        config_file.close()
     with open(
-        home_dir + "reports/" + today_date + ".json",
-        "w",
-        encoding="UTF-8",
-    ) as report_file:
-        report_skeleton = json.dumps(
-            {"meetings": 0, "planned_dev": 0, "unplanned_dev": 0}
-        )
-        report_file.write(report_skeleton)
-        report_file.close()
+        home_dir + "config/all.json", "w", encoding="UTF-8"
+    ) as default_config_file:
+        default_config_file.write(default_config)
+        default_config_file.close()
 
 
 logging.basicConfig(
@@ -97,32 +90,6 @@ def get_config():
     except FileNotFoundError:
         logging.info("Generating config file on first run")
         with open(home_dir + "config/all.json", "w", encoding="UTF-8") as config_file:
-            default_config = json.dumps(
-                {
-                    "total_hours": {
-                        "description": "Total number of hours in working day",
-                        "value": 8,
-                    },
-                    "reminder_minutes": {
-                        "description": "After how many minutes would you like a reminder",
-                        "value": 10,
-                    },
-                    "time_bins": {
-                        "meetings": {
-                            "description": "Time spent in meetings",
-                            "nice_name": "Meetings",
-                        },
-                        "planned_dev": {
-                            "description": "Planned developer time",
-                            "nice_name": "Planned Dev Time",
-                        },
-                        "unplanned_dev": {
-                            "description": "Unplanned developer time (Eg support)",
-                            "nice_name": "Unplanned Dev Time",
-                        },
-                    },
-                }
-            )
             config_file.write(default_config)
             config_file.close()
         logging.info("Default config applied!")
@@ -203,7 +170,7 @@ def get_report():
     return json.dumps(report)
 
 
-def do_notify(start_time, stop_notify):
+def do_notify(start_time):
     """Function to setup notifications in thread"""
     while True:
         config = json.loads(get_config())
@@ -241,26 +208,21 @@ def show_report():
 
 
 def main():
+    """Main app launch function"""
     main_window = sg.Window(
         "What U bin up 2", main_layout, keep_on_top=True, size=(180, 250)
     )
-    start_time = time.time()
-    START_NOTIFIER = True
-
+    start_notifier = True
     while True:
         today_report = json.loads(get_report())
         current_config = json.loads(get_config())
-        if START_NOTIFIER is True:
-            START_NOTIFIER = False
-            stop_notify = False
-            T = Thread(
+        if start_notifier is True:
+            start_notifier = False
+            notify_thread = Thread(
                 target=do_notify,
-                args=(
-                    start_time,
-                    lambda: stop_notify,
-                ),
+                args=(time.time(),),
             )
-            T.start()
+            notify_thread.start()
 
         if exists(home_dir + "tmp/do_notify"):
             sg.Popup("Log your time!", font=font)
@@ -269,23 +231,23 @@ def main():
         event, values = main_window.read(timeout=2)
         # Avoiding race condition on first launch
         try:
-            HOURS_SPENT = (
+            hours_spent = (
                 today_report["meetings"]
                 + today_report["planned_dev"]
                 + today_report["unplanned_dev"]
             )
         except TypeError:
             logging.info("No hours reported yet")
-            HOURS_SPENT = 0
+            hours_spent = 0
         main_window["current_total"].update(
-            "Total logged: " + str(HOURS_SPENT) + "/" + str(working_hours)
+            "Total logged: " + str(hours_spent) + "/" + str(working_hours)
         )
 
-        TIME_LOGGED = False
+        time_logged = False
         if event in (sg.WIN_CLOSED, "Exit"):
+            logging.debug("New event: %s", values)
             print("Mischief managed")
-            stop_notify = True
-            T.join()
+            notify_thread.join()
             break
         if event == "Report":
             show_report()
@@ -293,20 +255,20 @@ def main():
             show_settings()
         if event == "Meetings":
             today_report["meetings"] = today_report["meetings"] + 1
-            NEW_TOTAL = today_report["meetings"]
+            new_total = today_report["meetings"]
             logging.info("Meeting time logged")
-            TIME_LOGGED = True
+            time_logged = True
         if event == "Planned Dev":
             today_report["planned_dev"] = today_report["planned_dev"] + 1
-            NEW_TOTAL = today_report["planned_dev"]
+            new_total = today_report["planned_dev"]
             logging.info("Planned Dev time logged")
-            TIME_LOGGED = True
+            time_logged = True
         if event == "Unplanned Dev":
             today_report["unplanned_dev"] = today_report["unplanned_dev"] + 1
-            NEW_TOTAL = today_report["unplanned_dev"]
+            new_total = today_report["unplanned_dev"]
             logging.info("Unplanned Dev time logged")
-            TIME_LOGGED = True
-        if TIME_LOGGED is True:
+            time_logged = True
+        if time_logged is True:
             with open(
                 home_dir + "reports/" + today_date + ".json",
                 "w",
@@ -315,7 +277,7 @@ def main():
                 report_file.write(json.dumps(today_report))
                 report_file.close()
             sg.PopupNoButtons(
-                "New total for " + event + " is " + str(NEW_TOTAL),
+                "New total for " + event + " is " + str(new_total),
                 font=font,
                 auto_close_duration=1,
                 auto_close=True,
