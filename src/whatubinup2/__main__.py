@@ -208,7 +208,7 @@ def show_report():
 
 
 def main():
-    """Main function launch"""
+    """Main app launch function"""
     main_window = sg.Window(
         "What U bin up 2", main_layout, keep_on_top=True, size=(180, 250)
     )
