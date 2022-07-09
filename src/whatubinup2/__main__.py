@@ -211,7 +211,6 @@ def main():
         "What U bin up 2", main_layout, keep_on_top=True, size=(180, 250)
     )
     start_notifier = True
-
     while True:
         today_report = json.loads(get_report())
         current_config = json.loads(get_config())
