@@ -19,4 +19,4 @@ requires-python = ">=3.9"
 Homepage = "https://github.com/teamjtharrison/whatubinup2"
 
 [project.scripts]
-whatubinup2 = "whatubinup2.__main__:main"
+whatubinup2 = "whatubinup2.__main__:__main__"
