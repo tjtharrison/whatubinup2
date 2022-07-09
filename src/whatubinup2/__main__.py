@@ -177,7 +177,7 @@ def do_notify(start_time):
         time_since = round((time.time() - start_time) / 60, 1)
         if time_since > float(config["reminder_minutes"]["value"]):
             with open(
-                home_dir + "whatubinup2/tmp/do_notify", "w", encoding="UTF-8"
+                home_dir + "tmp/do_notify", "w", encoding="UTF-8"
             ) as do_notify_file:
                 do_notify_file.write(str(time.time()))
                 start_time = time.time()
