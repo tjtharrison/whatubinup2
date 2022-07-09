@@ -18,31 +18,31 @@ font = ("Open Sans", 15)
 sg.theme("DarkTeal9")
 
 default_config = json.dumps(
-            {
-                "total_hours": {
-                    "description": "Total number of hours in working day",
-                    "value": 8,
-                },
-                "reminder_minutes": {
-                    "description": "After how many minutes would you like a reminder",
-                    "value": 10,
-                },
-                "time_bins": {
-                    "meetings": {
-                        "description": "Time spent in meetings",
-                        "nice_name": "Meetings",
-                    },
-                    "planned_dev": {
-                        "description": "Planned developer time",
-                        "nice_name": "Planned Dev Time",
-                    },
-                    "unplanned_dev": {
-                        "description": "Unplanned developer time (Eg support)",
-                        "nice_name": "Unplanned Dev Time",
-                    },
-                },
-            }
-        )
+    {
+        "total_hours": {
+            "description": "Total number of hours in working day",
+            "value": 8,
+        },
+        "reminder_minutes": {
+            "description": "After how many minutes would you like a reminder",
+            "value": 10,
+        },
+        "time_bins": {
+            "meetings": {
+                "description": "Time spent in meetings",
+                "nice_name": "Meetings",
+            },
+            "planned_dev": {
+                "description": "Planned developer time",
+                "nice_name": "Planned Dev Time",
+            },
+            "unplanned_dev": {
+                "description": "Unplanned developer time (Eg support)",
+                "nice_name": "Unplanned Dev Time",
+            },
+        },
+    }
+)
 
 # Setup dirs
 if not exists(home_dir):
@@ -55,7 +55,9 @@ if not exists(home_dir):
     ]
     for my_dir in dirs:
         os.mkdir(my_dir)
-    with open(home_dir + "config/all.json", "w", encoding="UTF-8") as default_config_file:
+    with open(
+        home_dir + "config/all.json", "w", encoding="UTF-8"
+    ) as default_config_file:
         default_config_file.write(default_config)
         default_config_file.close()
 
@@ -206,7 +208,7 @@ def show_report():
 
 
 def main():
-    """ Main function launch """
+    """Main function launch"""
     main_window = sg.Window(
         "What U bin up 2", main_layout, keep_on_top=True, size=(180, 250)
     )
@@ -219,9 +221,7 @@ def main():
             start_notifier = False
             notify_thread = Thread(
                 target=do_notify,
-                args=(
-                    time.time(),
-                ),
+                args=(time.time(),),
             )
             notify_thread.start()
 
