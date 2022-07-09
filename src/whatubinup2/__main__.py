@@ -108,6 +108,7 @@ def show_settings():
             ),
             sg.InputText(default_text=config["reminder_minutes"]["value"], font=font),
         ],
+        [sg.Text("Bins", font=font)],
         [sg.Button("Submit", font=font)],
     ]
     settings_window = sg.Window(
@@ -228,8 +229,8 @@ def main():
         # Avoiding race condition on first launch
         try:
             hours_spent = 0
-            for bin in today_report:
-                hours_spent += today_report[bin]
+            for today_bin in today_report:
+                hours_spent += today_report[today_bin]
         except KeyError:
             hours_spent = 0
         main_window["current_total"].update(
