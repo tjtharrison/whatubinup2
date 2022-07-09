@@ -239,8 +239,7 @@ def show_report():
     report_window.read()
     report_window.close()
 
-
-if __name__ == "__main__":
+def main():
     main_window = sg.Window(
         "What U bin up 2", main_layout, keep_on_top=True, size=(180, 250)
     )
@@ -322,3 +321,6 @@ if __name__ == "__main__":
             )
 
     main_window.close()
+
+if __name__ == "__main__":
+    main()
