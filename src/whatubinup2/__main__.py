@@ -394,7 +394,8 @@ def main():
             sg.Popup("Log your time!", font=font)
             os.remove(home_dir + "tmp/do_notify")
         working_hours = current_config["total_hours"]["value"]
-        event, values = main_window.read(timeout=2)
+        event, main_values = main_window.read(timeout=2)
+        logging.debug("Event triggered, values: %s", main_values)
         try:
             hours_spent = 0
             for today_bin in today_report:
