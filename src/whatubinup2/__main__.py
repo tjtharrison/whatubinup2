@@ -340,7 +340,8 @@ main_layout = [
 
 
 class NotifyThread(threading.Thread):
-    """ Class used for management of notification thread """
+    """Class used for management of notification thread"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._stopper = threading.Event()
