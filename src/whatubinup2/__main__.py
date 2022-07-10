@@ -100,9 +100,11 @@ def show_settings():
         [sg.Text("Bins", font=big_font)],
         [
             [
-                sg.Button("Edit " + time_bin["nice_name"], font=font),
+
                 sg.Text("System Name: " + time_bin["name"], font=font),
-                sg.Text("Description: " + time_bin["description"], font=font)
+                sg.Text("Description: " + time_bin["description"], font=font),
+                sg.Button("Edit " + time_bin["nice_name"], font=font),
+                sg.Button("Delete " + time_bin["nice_name"], font=font),
             ]
             for time_bin in json.loads(get_bins())["time_bins"]
         ],
@@ -185,9 +187,28 @@ def show_settings():
                 bin_config.seek(0)
                 bin_config.write(json.dumps(bin_config_data))
                 bin_config.truncate()
+                sg.Popup("Bin edited successfully!", font=font)
         logging.info("New settings for " + bin["name"] + " applied: %s", new_bin_config)
         edit_bin_window.close()
     
+    if event.startswith("Delete"):
+        del_pos = 0
+        for bin in json.loads(get_bins())["time_bins"]:
+            raw_event = event.replace("Delete ", "")
+            if raw_event == bin["nice_name"]:
+                with open(home_dir + "config/bins.json", "r+", encoding="UTF-8") as bin_config:
+                    bin_config_data = json.load(bin_config)
+                    bin_config_data["time_bins"].pop(del_pos)
+
+                    bin_config.seek(0)
+                    bin_config.write(json.dumps(bin_config_data))
+                    bin_config.truncate()
+                    sg.Popup("Bin has been deleted!", font=font)
+                    logging.info(raw_event + " has been deleted: %s", bin_config_data)
+            else:
+                del_pos += 1
+
+
     if event == ("Add bin"):
         add_bin_layout = [
             [
@@ -231,6 +252,7 @@ def show_settings():
                 bin_config.seek(0)
                 bin_config.write(json.dumps(bin_config_data))
                 bin_config.truncate()
+                sg.Popup("New bin added (NOTE: This requires an app reload)!", font=font)
         logging.info("New bin created " + add_bin_values[1] + " : %s", add_bin_config)
         add_bin_window.close()
     settings_window.close()
