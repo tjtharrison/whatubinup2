@@ -429,4 +429,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.info("Whatubinup2 starting..")
     main()
