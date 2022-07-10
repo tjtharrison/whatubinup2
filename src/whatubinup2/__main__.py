@@ -109,7 +109,6 @@ def show_settings():
         [sg.Text("Bins", font=big_font)],
         [
             [
-
                 sg.Text("System Name: " + time_bin["name"], font=font),
                 sg.Text("Description: " + time_bin["description"], font=font),
                 sg.Button("Edit " + time_bin["nice_name"], font=font),
@@ -145,26 +144,27 @@ def show_settings():
             config_file.close()
         logging.info("New settings applied: %s", new_config)
     if event.startswith("Edit"):
-        for bin in json.loads(get_bins())["time_bins"]:
+        for edit_bin in json.loads(get_bins())["time_bins"]:
             raw_event = event.replace("Edit ", "")
-            if raw_event == bin["nice_name"]:
+            if raw_event == edit_bin["nice_name"]:
                 edit_bin_layout = [
                     [
                         sg.Text(
-                            "Update fields below to edit " + bin["nice_name"], font=font
+                            "Update fields below to edit " + edit_bin["nice_name"],
+                            font=font,
                         ),
                     ],
                     [
                         sg.Text("Nice name:", font=font),
-                        sg.InputText(default_text=bin["nice_name"], font=font),
+                        sg.InputText(default_text=edit_bin["nice_name"], font=font),
                     ],
                     [
                         sg.Text("System name:", font=font),
-                        sg.InputText(default_text=bin["name"], font=font),
+                        sg.InputText(default_text=edit_bin["name"], font=font),
                     ],
                     [
                         sg.Text("Description:", font=font),
-                        sg.InputText(default_text=bin["description"], font=font),
+                        sg.InputText(default_text=edit_bin["description"], font=font),
                     ],
                     [sg.Button("Save", font=font)],
                 ]
@@ -184,7 +184,7 @@ def show_settings():
                 bin_config_data = json.load(bin_config)
                 list_position = 0
                 for bin_config_item in bin_config_data["time_bins"]:
-                    if bin["name"] != bin_config_item["name"]:
+                    if edit_bin["name"] != bin_config_item["name"]:
                         list_position += 1
                 bin_config_data["time_bins"][list_position] = new_bin_config
 
@@ -192,15 +192,17 @@ def show_settings():
                 bin_config.write(json.dumps(bin_config_data))
                 bin_config.truncate()
                 sg.Popup("Bin edited successfully!", font=font)
-        logging.info("New settings for " + bin["name"] + " applied: %s", new_bin_config)
+            logging.info("New bin settings for applied: %s", new_bin_config)
         edit_bin_window.close()
-    
+
     if event.startswith("Delete"):
         del_pos = 0
-        for bin in json.loads(get_bins())["time_bins"]:
+        for del_bin in json.loads(get_bins())["time_bins"]:
             raw_event = event.replace("Delete ", "")
-            if raw_event == bin["nice_name"]:
-                with open(home_dir + "config/bins.json", "r+", encoding="UTF-8") as bin_config:
+            if raw_event == del_bin["nice_name"]:
+                with open(
+                    home_dir + "config/bins.json", "r+", encoding="UTF-8"
+                ) as bin_config:
                     bin_config_data = json.load(bin_config)
                     bin_config_data["time_bins"].pop(del_pos)
 
@@ -208,10 +210,9 @@ def show_settings():
                     bin_config.write(json.dumps(bin_config_data))
                     bin_config.truncate()
                     sg.Popup("Bin has been deleted!", font=font)
-                    logging.info(raw_event + " has been deleted: %s", bin_config_data)
+                    logging.info("Bin has been deleted: %s", bin_config_data)
             else:
                 del_pos += 1
-
 
     if event == ("Add bin"):
         add_bin_layout = [
@@ -252,8 +253,10 @@ def show_settings():
                 bin_config.seek(0)
                 bin_config.write(json.dumps(bin_config_data))
                 bin_config.truncate()
-                sg.Popup("New bin added (NOTE: This requires an app reload)!", font=font)
-        logging.info("New bin created " + add_bin_values[1] + " : %s", add_bin_config)
+                sg.Popup(
+                    "New bin added (NOTE: This requires an app reload)!", font=font
+                )
+        logging.info("New bin created: %s", add_bin_config)
         add_bin_window.close()
     settings_window.close()
 
@@ -273,8 +276,8 @@ def get_report():
 
             report_skeleton = {}
 
-            for bin in json.loads(get_bins())["time_bins"]:
-                report_skeleton.update({bin["name"]: 0})
+            for update_bin in json.loads(get_bins())["time_bins"]:
+                report_skeleton.update({update_bin["name"]: 0})
 
             report_file.write(json.dumps(report_skeleton))
             report_file.close()
@@ -422,7 +425,6 @@ def main():
                 auto_close_duration=1,
                 auto_close=True,
             )
-
     main_window.close()
 
 
