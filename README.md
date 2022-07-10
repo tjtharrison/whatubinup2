@@ -53,6 +53,8 @@ PR/some small fix [patch]
 * Fix issue of `Exit` not closing do_notify
 * Browse historic reports
 * Customisable themes
+* Better handling of missing config files
+* First launch popup
 
 # Stretch features
 * Integration with gcal? (See you've been in a meeting)
