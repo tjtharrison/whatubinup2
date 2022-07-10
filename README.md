@@ -50,7 +50,6 @@ PR/some small fix [patch]
 
 # Features coming soon
 * Adding bin icons on buttons
-* Fix issue of `Exit` not closing do_notify
 * Browse historic reports
 * Customisable themes
 * Better handling of missing config files

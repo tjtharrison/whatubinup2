@@ -2,10 +2,10 @@
 import json
 import logging
 import os
+import threading
 import time
 from datetime import date
 from os.path import exists, expanduser
-from threading import Thread
 
 import PySimpleGUI as sg
 
@@ -286,27 +286,6 @@ def get_report():
     return json.dumps(report)
 
 
-def do_notify(start_time):
-    """Function to setup notifications in thread"""
-    while True:
-        config = json.loads(get_config())
-        time_since = round((time.time() - start_time) / 60, 1)
-        if time_since > float(config["reminder_minutes"]["value"]):
-            with open(
-                home_dir + "tmp/do_notify", "w", encoding="UTF-8"
-            ) as do_notify_file:
-                do_notify_file.write(str(time.time()))
-                start_time = time.time()
-                logging.debug("Notification sent, timer restarting")
-                continue
-        else:
-            remaining_time = round(
-                float(config["reminder_minutes"]["value"]) - time_since, 1
-            )
-            logging.debug("Not ready to notify, %s minutes left", remaining_time)
-            time.sleep(9)
-
-
 def show_report():
     """Popup modal with current time logging stats"""
     logging.info("Report opened")
@@ -360,6 +339,44 @@ main_layout = [
 ]
 
 
+class NotifyThread(threading.Thread):
+    """Class used for management of notification thread"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._stopper = threading.Event()
+
+    def stop(self):
+        logging.info("NotifyThread will exit on next cycle")
+        self._stopper.set()
+
+    def stopped(self):
+        return self._stopper.isSet()
+
+    def run(self):
+        start_time = time.time()
+        while True:
+            if self.stopped():
+                logging.info("NotifyThread stopping")
+                return
+            config = json.loads(get_config())
+            time_since = round((time.time() - start_time) / 60, 1)
+            if time_since > float(config["reminder_minutes"]["value"]):
+                with open(
+                    home_dir + "tmp/do_notify", "w", encoding="UTF-8"
+                ) as do_notify_file:
+                    do_notify_file.write(str(time.time()))
+                    start_time = time.time()
+                    logging.debug("Notification sent, timer restarting")
+                    continue
+            else:
+                remaining_time = round(
+                    float(config["reminder_minutes"]["value"]) - time_since, 1
+                )
+                logging.debug("Not ready to notify, %s minutes left", remaining_time)
+                time.sleep(9)
+
+
 def main():
     """Main app launch function"""
     main_window = sg.Window("What U bin up 2", main_layout, keep_on_top=True)
@@ -370,17 +387,16 @@ def main():
         list_bins = json.loads(get_bins())["time_bins"]
         if start_notifier is True:
             start_notifier = False
-            notify_thread = Thread(
-                target=do_notify,
-                args=(time.time(),),
-            )
-            notify_thread.start()
+            ## Launch thread
+            notify_thread_manage = NotifyThread()
+            notify_thread_manage.start()
 
         if exists(home_dir + "tmp/do_notify"):
             sg.Popup("Log your time!", font=font)
             os.remove(home_dir + "tmp/do_notify")
         working_hours = current_config["total_hours"]["value"]
-        event, values = main_window.read(timeout=2)
+        event, main_values = main_window.read(timeout=2)
+        logging.debug("Event triggered, entered values: %s", main_values)
         try:
             hours_spent = 0
             for today_bin in today_report:
@@ -392,8 +408,16 @@ def main():
         )
         time_logged = False
         if event in (sg.WIN_CLOSED, "Exit"):
-            logging.debug("New event: %s", values)
-            notify_thread.join()
+            logging.info("Exit requested, closing NotifyThread")
+            sg.PopupNoButtons(
+                "Exiting, please wait for notify thread to close..",
+                font=font,
+                auto_close_duration=2,
+                auto_close=True,
+            )
+            notify_thread_manage.stop()
+            notify_thread_manage.join()
+            logging.info("Exiting")
             break
         if event == "Report":
             show_report()
