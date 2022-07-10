@@ -6,7 +6,6 @@ import threading
 import time
 from datetime import date
 from os.path import exists, expanduser
-from threading import Thread
 
 import PySimpleGUI as sg
 
@@ -340,13 +339,14 @@ main_layout = [
 ]
 
 
-class notify_thread(threading.Thread):
+class NotifyThread(threading.Thread):
+    """ Class used for management of notification thread """
     def __init__(self, *args, **kwargs):
-        super(notify_thread, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._stopper = threading.Event()
 
     def stop(self):
-        logging.info("notify_thread will exit on next cycle")
+        logging.info("NotifyThread will exit on next cycle")
         self._stopper.set()
 
     def stopped(self):
@@ -356,7 +356,7 @@ class notify_thread(threading.Thread):
         start_time = time.time()
         while True:
             if self.stopped():
-                logging.info("notify_thread stopping")
+                logging.info("NotifyThread stopping")
                 return
             config = json.loads(get_config())
             time_since = round((time.time() - start_time) / 60, 1)
@@ -387,7 +387,7 @@ def main():
         if start_notifier is True:
             start_notifier = False
             ## Launch thread
-            notify_thread_manage = notify_thread()
+            notify_thread_manage = NotifyThread()
             notify_thread_manage.start()
 
         if exists(home_dir + "tmp/do_notify"):
@@ -406,7 +406,7 @@ def main():
         )
         time_logged = False
         if event in (sg.WIN_CLOSED, "Exit"):
-            logging.info("Exit requested, closing notify_thread")
+            logging.info("Exit requested, closing NotifyThread")
             sg.PopupNoButtons(
                 "Exiting, please wait for notify thread to close..",
                 font=font,
