@@ -35,9 +35,10 @@ default_config = json.dumps(
         "reminder_minutes": {
             "description": "After how many minutes would you like a reminder",
             "value": 10,
-        }
+        },
     }
 )
+
 
 def get_bins():
     """Function to get bins from local config"""
@@ -47,11 +48,19 @@ def get_bins():
     except FileNotFoundError:
         logging.info("Generating bin file on first run")
         with open(home_dir + "config/bins.json", "w", encoding="UTF-8") as config_file:
-            config_file.write(json.dumps({
-                "time_bins": [
-                    {"name": "default", "nice_name": "Default", "description": "Default time bin"}
-                ]
-            }))
+            config_file.write(
+                json.dumps(
+                    {
+                        "time_bins": [
+                            {
+                                "name": "default",
+                                "nice_name": "Default",
+                                "description": "Default time bin",
+                            }
+                        ]
+                    }
+                )
+            )
             config_file.close()
         logging.info("Default bins created!")
         config = default_config
@@ -141,30 +150,23 @@ def show_settings():
             if raw_event == bin["nice_name"]:
                 edit_bin_layout = [
                     [
-                            sg.Text("Update fields below to edit " + bin["nice_name"], font=font),
+                        sg.Text(
+                            "Update fields below to edit " + bin["nice_name"], font=font
+                        ),
                     ],
                     [
-                            sg.Text("Nice name:", font=font),
-                            sg.InputText(
-                                default_text=bin["nice_name"],
-                                font=font
-                            ),
+                        sg.Text("Nice name:", font=font),
+                        sg.InputText(default_text=bin["nice_name"], font=font),
                     ],
                     [
-                            sg.Text("System name:", font=font),
-                            sg.InputText(
-                                default_text=bin["name"],
-                                font=font
-                            ),
+                        sg.Text("System name:", font=font),
+                        sg.InputText(default_text=bin["name"], font=font),
                     ],
                     [
-                            sg.Text("Description:", font=font),
-                            sg.InputText(
-                                default_text=bin["description"],
-                                font=font
-                            ),
+                        sg.Text("Description:", font=font),
+                        sg.InputText(default_text=bin["description"], font=font),
                     ],
-                    [sg.Button("Save", font=font)]
+                    [sg.Button("Save", font=font)],
                 ]
         edit_bin_window = sg.Window(
             "Edit bin", edit_bin_layout, use_default_focus=False, finalize=True
@@ -172,11 +174,13 @@ def show_settings():
         event, bin_setting_values = edit_bin_window.read()
         if event == "Save":
             new_bin_config = {
-                    "name": bin_setting_values[1],
-                    "nice_name": bin_setting_values[0],
-                    "description": bin_setting_values[2]
+                "name": bin_setting_values[1],
+                "nice_name": bin_setting_values[0],
+                "description": bin_setting_values[2],
             }
-            with open(home_dir + "config/bins.json", "r+", encoding="UTF-8") as bin_config:
+            with open(
+                home_dir + "config/bins.json", "r+", encoding="UTF-8"
+            ) as bin_config:
                 bin_config_data = json.load(bin_config)
                 list_position = 0
                 for bin_config_item in bin_config_data["time_bins"]:
@@ -212,27 +216,21 @@ def show_settings():
     if event == ("Add bin"):
         add_bin_layout = [
             [
-                    sg.Text("Update fields below to create a new bin", font=font),
+                sg.Text("Update fields below to create a new bin", font=font),
             ],
             [
-                    sg.Text("Nice name:", font=font),
-                    sg.InputText(
-                        font=font
-                    ),
+                sg.Text("Nice name:", font=font),
+                sg.InputText(font=font),
             ],
             [
-                    sg.Text("System name:", font=font),
-                    sg.InputText(
-                        font=font
-                    ),
+                sg.Text("System name:", font=font),
+                sg.InputText(font=font),
             ],
             [
-                    sg.Text("Description:", font=font),
-                    sg.InputText(
-                        font=font
-                    ),
+                sg.Text("Description:", font=font),
+                sg.InputText(font=font),
             ],
-            [sg.Button("Save", font=font)]
+            [sg.Button("Save", font=font)],
         ]
         add_bin_window = sg.Window(
             "Add bin", add_bin_layout, use_default_focus=False, finalize=True
@@ -240,11 +238,13 @@ def show_settings():
         event, add_bin_values = add_bin_window.read()
         if event == "Save":
             add_bin_config = {
-                    "name": add_bin_values[1],
-                    "nice_name": add_bin_values[0],
-                    "description": add_bin_values[2]
+                "name": add_bin_values[1],
+                "nice_name": add_bin_values[0],
+                "description": add_bin_values[2],
             }
-            with open(home_dir + "config/bins.json", "r+", encoding="UTF-8") as bin_config:
+            with open(
+                home_dir + "config/bins.json", "r+", encoding="UTF-8"
+            ) as bin_config:
                 bin_config_data = json.load(bin_config)
 
                 bin_config_data["time_bins"].append(add_bin_config)
@@ -291,7 +291,7 @@ def do_notify(start_time):
         if time_since > float(config["reminder_minutes"]["value"]):
             with open(
                 home_dir + "tmp/do_notify", "w", encoding="UTF-8"
-            ) as do_notify_file: 
+            ) as do_notify_file:
                 do_notify_file.write(str(time.time()))
                 start_time = time.time()
                 logging.debug("Notification sent, timer restarting")
@@ -324,6 +324,7 @@ def show_report():
     )
     report_window.read()
     report_window.close()
+
 
 # Setup dirs
 if not exists(home_dir):
@@ -403,7 +404,7 @@ def main():
                     try:
                         today_report[bin["name"]] = today_report[bin["name"]] + 1
                     except KeyError:
-                        today_report[bin["name"]] =  1
+                        today_report[bin["name"]] = 1
                     new_total = today_report[bin["name"]]
                     logging.info("Meeting time logged")
                     time_logged = True
