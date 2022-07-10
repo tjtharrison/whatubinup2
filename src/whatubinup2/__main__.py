@@ -2,10 +2,10 @@
 import json
 import logging
 import os
+import threading
 import time
 from datetime import date
 from os.path import exists, expanduser
-import threading
 from threading import Thread
 
 import PySimpleGUI as sg
@@ -286,6 +286,7 @@ def get_report():
         report = report_skeleton
     return json.dumps(report)
 
+
 def show_report():
     """Popup modal with current time logging stats"""
     logging.info("Report opened")
@@ -338,15 +339,19 @@ main_layout = [
     [sg.Button("Exit", font=font)],
 ]
 
+
 class notify_thread(threading.Thread):
     def __init__(self, *args, **kwargs):
         super(notify_thread, self).__init__(*args, **kwargs)
         self._stopper = threading.Event()
+
     def stop(self):
         logging.info("notify_thread will exit on next cycle")
         self._stopper.set()
+
     def stopped(self):
         return self._stopper.isSet()
+
     def run(self):
         start_time = time.time()
         while True:
