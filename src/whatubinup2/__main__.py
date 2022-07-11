@@ -479,14 +479,14 @@ def main():
             show_settings()
         if event.startswith("Log"):
             # Iterate over bins looking for event
-            for bin in list_bins:
+            for event_bin in list_bins:
                 raw_event = event.replace("Log ", "")
-                if raw_event == bin["nice_name"]:
+                if raw_event == event_bin["nice_name"]:
                     try:
-                        today_report[bin["name"]] = today_report[bin["name"]] + 1
+                        today_report[event_bin["name"]] = today_report[event_bin["name"]] + 1
                     except KeyError:
-                        today_report[bin["name"]] = 1
-                    new_total = today_report[bin["name"]]
+                        today_report[event_bin["name"]] = 1
+                    new_total = today_report[event_bin["name"]]
                     logging.info("Meeting time logged")
                     time_logged = True
         if time_logged is True:
