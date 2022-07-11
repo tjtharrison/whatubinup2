@@ -6,6 +6,7 @@ import threading
 import time
 from datetime import date
 from os.path import exists, expanduser
+from tabnanny import check
 
 import PySimpleGUI as sg
 
@@ -33,7 +34,7 @@ logging.basicConfig(
 
 
 def check_for_dir(subdir):
-    """ Function to create missing directories """
+    """Function to create missing directories"""
     if not exists(home_dir + subdir):
         logging.info("%s dir does not exist, recreating..", subdir)
         os.mkdir(home_dir + subdir)
@@ -333,12 +334,12 @@ class NotifyThread(threading.Thread):
         self._stopper = threading.Event()
 
     def stop(self):
-        """ Stop function """
+        """Stop function"""
         logging.info("NotifyThread will exit on next cycle")
         self._stopper.set()
 
     def stopped(self):
-        """ Check if stopped """
+        """Check if stopped"""
         return self._stopper.isSet()
 
     def run(self):
