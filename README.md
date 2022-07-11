@@ -49,9 +49,7 @@ PR/some small fix [patch]
 ```
 
 # Features coming soon
-* Adding bin icons on buttons
 * Browse historic reports
-* Customisable themes
 * First launch popup
 
 # Stretch features
