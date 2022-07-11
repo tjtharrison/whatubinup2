@@ -327,20 +327,18 @@ def show_report():
     paths.sort(key=os.path.getctime)
     historic_report_list = []
     for path in paths:
-        file_name = path.split("/")[-1].replace(".json","")
-        with open(
-            path,
-            "r",
-            encoding="UTF-8"
-        ) as historic_report_item:
+        file_name = path.split("/")[-1].replace(".json", "")
+        with open(path, "r", encoding="UTF-8") as historic_report_item:
             report_json = json.load(historic_report_item)
             report_text = ""
             for report_item in report_json:
-                report_text += report_item + " : " + str(report_json[report_item]) + " \n"
-            layout = [[sg.T(report_text,font=font)]]
-            historic_report_list.append([sg.Tab(file_name, layout,font=font)])
+                report_text += (
+                    report_item + " : " + str(report_json[report_item]) + " \n"
+                )
+            layout = [[sg.T(report_text, font=font)]]
+            historic_report_list.append([sg.Tab(file_name, layout, font=font)])
 
-    historic_report_frame = [[sg.TabGroup(historic_report_list,font=font)]]
+    historic_report_frame = [[sg.TabGroup(historic_report_list, font=font)]]
     report_layout = [
         [
             [
