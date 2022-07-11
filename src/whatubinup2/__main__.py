@@ -325,7 +325,6 @@ def get_report():
 def show_report():
     """Popup modal with current time logging stats"""
     logging.info("Report opened")
-    today_report = json.loads(get_report())
 
     # Get newest files in dir
     files = os.listdir(reports_dir)
@@ -335,21 +334,19 @@ def show_report():
 
     historic_report = {}
     for path in paths:
-        print("Processing: " + path)
+        file_name = path.split("/")[-1].replace(".json","")
         with open(
             path,
             "r",
             encoding="UTF-8"
         ) as historic_report_item:
-            historic_report[path] = json.load(historic_report_item)
+            historic_report[file_name] = json.load(historic_report_item)
 
-    ## Historic reports frame
-    layout_tab1 = [[sg.T('This is inside tab 1',font=font)]]
-    layout_tab2 = [[sg.T('This is inside tab 2',font=font)]]
-    layout_tabgroup = [
-        [sg.Tab('Tab 1', layout_tab1,font=font)],
-        [sg.Tab('Tab 2', layout_tab2,font=font)]]
-    layout_frame = [[sg.TabGroup(layout_tabgroup,font=font)]]
+    historic_report_list = []
+    for record in historic_report:
+        layout = [[sg.T(historic_report[record],font=font)]]
+        historic_report_list.append([sg.Tab(record, layout,font=font)])
+    layout_frame = [[sg.TabGroup(historic_report_list,font=font)]]
 
     layout = [ 
         [
