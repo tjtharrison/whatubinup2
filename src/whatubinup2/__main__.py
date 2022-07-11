@@ -7,7 +7,6 @@ import threading
 import time
 from datetime import date
 from os.path import exists, expanduser
-from tkinter import HORIZONTAL
 
 import PySimpleGUI as sg
 
