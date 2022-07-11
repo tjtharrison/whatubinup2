@@ -2,10 +2,10 @@
 import json
 import logging
 import os
+import os.path
 import threading
 import time
 from datetime import date
-import os.path
 from os.path import exists, expanduser
 from tkinter import HORIZONTAL
 
@@ -170,9 +170,7 @@ def show_settings():
                     },
                 }
             )
-            with open(
-                config_dir + "all.json", "w", encoding="UTF-8"
-            ) as config_file:
+            with open(config_dir + "all.json", "w", encoding="UTF-8") as config_file:
                 config_file.write(new_config)
                 config_file.close()
             logging.info("New settings applied: %s", new_config)
@@ -300,9 +298,7 @@ def get_report():
     """Function to get or generate todays report"""
     check_for_dir(reports_dir)
     try:
-        with open(
-            reports_dir + today_date + ".json", encoding="utf-8"
-        ) as report:
+        with open(reports_dir + today_date + ".json", encoding="utf-8") as report:
             report = json.load(report)
     except FileNotFoundError:
         logging.info("Generating report file on first run for today")
@@ -348,7 +344,7 @@ def show_report():
         historic_report_list.append([sg.Tab(record, layout,font=font)])
     layout_frame = [[sg.TabGroup(historic_report_list,font=font)]]
 
-    layout = [ 
+    layout = [
         [
             [
                 sg.Text(
@@ -358,7 +354,7 @@ def show_report():
             ]
             for time_bin in json.loads(get_report())
         ],
-        [sg.Frame('Historic Reports', layout_frame,font=font)],
+        [sg.Frame("Historic Reports", layout_frame, font=font)],
     ]
     report_window = sg.Window(
         "Time Report", layout, use_default_focus=False, finalize=True
@@ -437,7 +433,7 @@ def main():
                 "Settings", font=font, tooltip="Edit app settings and configure bins"
             )
         ],
-        [sg.Button("Exit", font=font, tooltip="Exit the app")]
+        [sg.Button("Exit", font=font, tooltip="Exit the app")],
     ]
     logging.info("Launching client")
     main_window = sg.Window(
