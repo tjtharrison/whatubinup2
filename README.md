@@ -42,7 +42,7 @@ Build scripts require a commit message in the following format to generate a pul
 [PR|WIP]/$commit_message[[major]|[minor]|[patch]|[none]]
 ```
 
-Example to create a PR for a minor change:
+Example to create a PR for a patch change:
 
 ```
 PR/some small fix [patch]
