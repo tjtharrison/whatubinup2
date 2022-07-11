@@ -105,11 +105,17 @@ def show_settings():
     settings_layout = [
         [sg.Text("Settings", font=font)],
         [
-            sg.Text("Total Hours", font=font,tooltip=config["total_hours"]["description"]),
+            sg.Text(
+                "Total Hours", font=font, tooltip=config["total_hours"]["description"]
+            ),
             sg.InputText(default_text=config["total_hours"]["value"], font=font),
         ],
         [
-            sg.Text("Reminder Minutes", font=font,tooltip=config["reminder_minutes"]["description"]),
+            sg.Text(
+                "Reminder Minutes",
+                font=font,
+                tooltip=config["reminder_minutes"]["description"],
+            ),
             sg.InputText(default_text=config["reminder_minutes"]["value"], font=font),
         ],
         [sg.Text("Bins", font=big_font)],
@@ -120,12 +126,12 @@ def show_settings():
                 sg.Button(
                     "Edit " + time_bin["nice_name"],
                     font=font,
-                    tooltip="Edit bin settings for " + time_bin["nice_name"]
+                    tooltip="Edit bin settings for " + time_bin["nice_name"],
                 ),
                 sg.Button(
                     "Delete " + time_bin["nice_name"],
                     font=font,
-                    tooltip="Delete bin " + time_bin["nice_name"]
+                    tooltip="Delete bin " + time_bin["nice_name"],
                 ),
             ]
             for time_bin in json.loads(get_bins())["time_bins"]
@@ -155,7 +161,9 @@ def show_settings():
                     },
                 }
             )
-            with open(home_dir + "config/all.json", "w", encoding="UTF-8") as config_file:
+            with open(
+                home_dir + "config/all.json", "w", encoding="UTF-8"
+            ) as config_file:
                 config_file.write(new_config)
                 config_file.close()
             logging.info("New settings applied: %s", new_config)
@@ -180,7 +188,9 @@ def show_settings():
                         ],
                         [
                             sg.Text("Description:", font=font),
-                            sg.InputText(default_text=edit_bin["description"], font=font),
+                            sg.InputText(
+                                default_text=edit_bin["description"], font=font
+                            ),
                         ],
                         [sg.Button("Save", font=font)],
                     ]
@@ -375,20 +385,32 @@ def main():
     get_bins()
     main_layout = [
         [
-            [sg.Button(
-                "Log " + time_bin["nice_name"],
-                font=font,
-                tooltip="Log time in " + time_bin["nice_name"] + " bin")
+            [
+                sg.Button(
+                    "Log " + time_bin["nice_name"],
+                    font=font,
+                    tooltip="Log time in " + time_bin["nice_name"] + " bin",
+                )
             ]
             for time_bin in json.loads(get_bins())["time_bins"]
         ],
         [sg.Text("", font=font, key="current_total")],
-        [sg.Button("Report", font=font,tooltip="Show a report of current time binned")],
-        [sg.Button("Settings", font=font,tooltip="Edit app settings and configure bins")],
-        [sg.Button("Exit", font=font,tooltip="Exit the app")],
+        [
+            sg.Button(
+                "Report", font=font, tooltip="Show a report of current time binned"
+            )
+        ],
+        [
+            sg.Button(
+                "Settings", font=font, tooltip="Edit app settings and configure bins"
+            )
+        ],
+        [sg.Button("Exit", font=font, tooltip="Exit the app")],
     ]
     logging.info("Launching client")
-    main_window = sg.Window("What U bin up 2", main_layout, keep_on_top=True, location=(1000,200))
+    main_window = sg.Window(
+        "What U bin up 2", main_layout, keep_on_top=True, location=(1000, 200)
+    )
     while True:
         today_report = json.loads(get_report())
         current_config = json.loads(get_config())
