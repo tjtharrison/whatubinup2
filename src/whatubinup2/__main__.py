@@ -8,9 +8,8 @@ import time
 from datetime import date
 from os.path import exists, expanduser
 
-import PySimpleGUI as sg
-
 import file_ops
+import PySimpleGUI as sg
 import shows
 
 home_dir = expanduser("~") + "/whatubinup2/"

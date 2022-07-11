@@ -26,6 +26,7 @@ default_config = json.dumps(
     }
 )
 
+
 def check_for_dir(full_dir):
     """Function to create missing directories"""
     if not exists(full_dir):
@@ -76,8 +77,6 @@ def get_config():
         logging.info("Default config applied!")
         config = default_config
     return json.dumps(config)
-
-
 
 
 def get_report():

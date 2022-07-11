@@ -3,10 +3,9 @@ import json
 import logging
 import os
 from os.path import expanduser
-import PySimpleGUI as sg
+
 import file_ops
-
-
+import PySimpleGUI as sg
 
 home_dir = expanduser("~") + "/whatubinup2/"
 reports_dir = home_dir + "reports/"
