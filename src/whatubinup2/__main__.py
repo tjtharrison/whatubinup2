@@ -19,7 +19,7 @@ big_font = ("Open Sans", 25)
 sg.theme("DarkTeal9")
 
 
-# Check for log dir
+# Check for logs dir
 if not exists(home_dir + "logs"):
     os.mkdir(home_dir + "logs")
 
