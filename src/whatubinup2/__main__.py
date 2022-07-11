@@ -326,8 +326,6 @@ def show_report():
     files = os.listdir(reports_dir)
     paths = [os.path.join(reports_dir, basename) for basename in files]
     paths.sort(key=os.path.getctime)
-    paths = paths[:5]
-
     historic_report_list = []
     for path in paths:
         file_name = path.split("/")[-1].replace(".json","")
@@ -336,11 +334,15 @@ def show_report():
             "r",
             encoding="UTF-8"
         ) as historic_report_item:
-            layout = [[sg.T(json.load(historic_report_item),font=font)]]
+            report_json = json.load(historic_report_item)
+            report_text = ""
+            for report_item in report_json:
+                report_text += report_item + " : " + str(report_json[report_item]) + " \n"
+            layout = [[sg.T(report_text,font=font)]]
             historic_report_list.append([sg.Tab(file_name, layout,font=font)])
-        
+
     historic_report_frame = [[sg.TabGroup(historic_report_list,font=font)]]
-    layout = [
+    report_layout = [
         [
             [
                 sg.Text(
@@ -353,7 +355,7 @@ def show_report():
         [sg.Frame("Historic Reports", historic_report_frame, font=font)],
     ]
     report_window = sg.Window(
-        "Time Report", layout, use_default_focus=False, finalize=True
+        "Time Report", report_layout, use_default_focus=False, finalize=True
     )
     report_window.read()
     report_window.close()
