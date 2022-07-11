@@ -330,19 +330,15 @@ def show_report():
 
     historic_report = {}
     for path in paths:
-        file_name = path.split("/")[-1].replace(".json","")
-        with open(
-            path,
-            "r",
-            encoding="UTF-8"
-        ) as historic_report_item:
+        file_name = path.split("/")[-1].replace(".json", "")
+        with open(path, "r", encoding="UTF-8") as historic_report_item:
             historic_report[file_name] = json.load(historic_report_item)
 
     historic_report_list = []
     for record in historic_report:
-        layout = [[sg.T(historic_report[record],font=font)]]
-        historic_report_list.append([sg.Tab(record, layout,font=font)])
-    layout_frame = [[sg.TabGroup(historic_report_list,font=font)]]
+        layout = [[sg.T(historic_report[record], font=font)]]
+        historic_report_list.append([sg.Tab(record, layout, font=font)])
+    layout_frame = [[sg.TabGroup(historic_report_list, font=font)]]
 
     layout = [
         [
