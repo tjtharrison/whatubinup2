@@ -52,7 +52,6 @@ PR/some small fix [patch]
 * Adding bin icons on buttons
 * Browse historic reports
 * Customisable themes
-* Better handling of missing config files
 * First launch popup
 
 # Stretch features

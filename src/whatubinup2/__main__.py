@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+from tabnanny import check
 import threading
 import time
 from datetime import date
@@ -17,6 +18,11 @@ font = ("Open Sans", 15)
 big_font = ("Open Sans", 25)
 sg.theme("DarkTeal9")
 
+
+# Check for log dir
+if not exists(home_dir + "logs"):
+    os.mkdir(home_dir + "logs")
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -25,6 +31,15 @@ logging.basicConfig(
         logging.StreamHandler(),
     ],
 )
+
+
+def check_for_dir(subdir):
+    """ Function to create missing directories """
+    if not exists(home_dir + subdir):
+        logging.info("%s dir does not exist, recreating..", subdir)
+        os.mkdir(home_dir + subdir)
+        logging.info("%s dir created", subdir)
+
 
 default_config = json.dumps(
     {
@@ -42,11 +57,12 @@ default_config = json.dumps(
 
 def get_bins():
     """Function to get bins from local config"""
+    check_for_dir("config")
     try:
         with open(home_dir + "config/bins.json", encoding="utf-8") as config:
             config = json.load(config)
     except FileNotFoundError:
-        logging.info("Generating bin file on first run")
+        logging.info("bins.json config missing, generating from skeleton")
         with open(home_dir + "config/bins.json", "w", encoding="UTF-8") as config_file:
             config_file.write(
                 json.dumps(
@@ -69,11 +85,12 @@ def get_bins():
 
 def get_config():
     """Function to get configuration from local config"""
+    check_for_dir("config")
     try:
         with open(home_dir + "config/all.json", encoding="utf-8") as config:
             config = json.load(config)
     except FileNotFoundError:
-        logging.info("Generating config file on first run")
+        logging.info("all.json config missing, generating from skeleton")
         with open(home_dir + "config/all.json", "w", encoding="UTF-8") as config_file:
             config_file.write(default_config)
             config_file.close()
@@ -263,6 +280,7 @@ def show_settings():
 
 def get_report():
     """Function to get or generate todays report"""
+    check_for_dir("reports")
     try:
         with open(
             home_dir + "reports/" + today_date + ".json", encoding="utf-8"
@@ -308,37 +326,6 @@ def show_report():
     report_window.close()
 
 
-# Setup dirs
-if not exists(home_dir):
-    dirs = [
-        home_dir,
-        home_dir + "tmp",
-        home_dir + "config",
-        home_dir + "reports",
-        home_dir + "logs",
-    ]
-    for my_dir in dirs:
-        os.mkdir(my_dir)
-    with open(
-        home_dir + "config/all.json", "w", encoding="UTF-8"
-    ) as default_config_file:
-        default_config_file.write(default_config)
-        default_config_file.close()
-    get_bins()
-
-
-main_layout = [
-    [
-        [sg.Button("Log " + time_bin["nice_name"], font=font)]
-        for time_bin in json.loads(get_bins())["time_bins"]
-    ],
-    [sg.Text("", font=font, key="current_total")],
-    [sg.Button("Report", font=font)],
-    [sg.Button("Settings", font=font)],
-    [sg.Button("Exit", font=font)],
-]
-
-
 class NotifyThread(threading.Thread):
     """Class used for management of notification thread"""
 
@@ -347,14 +334,17 @@ class NotifyThread(threading.Thread):
         self._stopper = threading.Event()
 
     def stop(self):
+        """ Stop function """
         logging.info("NotifyThread will exit on next cycle")
         self._stopper.set()
 
     def stopped(self):
+        """ Check if stopped """
         return self._stopper.isSet()
 
     def run(self):
         start_time = time.time()
+        check_for_dir("tmp")
         while True:
             if self.stopped():
                 logging.info("NotifyThread stopping")
@@ -379,8 +369,23 @@ class NotifyThread(threading.Thread):
 
 def main():
     """Main app launch function"""
-    main_window = sg.Window("What U bin up 2", main_layout, keep_on_top=True)
     start_notifier = True
+    logging.info("Getting config")
+    get_config()
+    logging.info("Getting bins")
+    get_bins()
+    main_layout = [
+        [
+            [sg.Button("Log " + time_bin["nice_name"], font=font)]
+            for time_bin in json.loads(get_bins())["time_bins"]
+        ],
+        [sg.Text("", font=font, key="current_total")],
+        [sg.Button("Report", font=font)],
+        [sg.Button("Settings", font=font)],
+        [sg.Button("Exit", font=font)],
+    ]
+    logging.info("Launching client")
+    main_window = sg.Window("What U bin up 2", main_layout, keep_on_top=True)
     while True:
         today_report = json.loads(get_report())
         current_config = json.loads(get_config())
