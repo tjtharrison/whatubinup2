@@ -483,7 +483,9 @@ def main():
                 raw_event = event.replace("Log ", "")
                 if raw_event == event_bin["nice_name"]:
                     try:
-                        today_report[event_bin["name"]] = today_report[event_bin["name"]] + 1
+                        today_report[event_bin["name"]] = (
+                            today_report[event_bin["name"]] + 1
+                        )
                     except KeyError:
                         today_report[event_bin["name"]] = 1
                     new_total = today_report[event_bin["name"]]
