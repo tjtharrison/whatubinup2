@@ -49,8 +49,7 @@ PR/some small fix [patch]
 ```
 
 # Features coming soon
-* Browse historic reports
-* First launch popup
+* Let me know!
 
 # Stretch features
 * Integration with gcal? (See you've been in a meeting)

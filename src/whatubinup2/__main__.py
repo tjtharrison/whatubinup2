@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+import os.path
 import threading
 import time
 from datetime import date
@@ -10,6 +11,10 @@ from os.path import exists, expanduser
 import PySimpleGUI as sg
 
 home_dir = expanduser("~") + "/whatubinup2/"
+reports_dir = home_dir + "reports/"
+config_dir = home_dir + "config/"
+tmp_dir = home_dir + "tmp/"
+logs_dir = home_dir + "logs/"
 
 today = date.today()
 today_date = today.strftime("%y-%m-%d")
@@ -17,27 +22,30 @@ font = ("Open Sans", 15)
 big_font = ("Open Sans", 25)
 sg.theme("DarkGrey4")
 
+# Check for home dir
+if not exists(home_dir):
+    os.mkdir(home_dir)
 
 # Check for logs dir
-if not exists(home_dir + "logs"):
-    os.mkdir(home_dir + "logs")
+if not exists(logs_dir):
+    os.mkdir(logs_dir)
 
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        logging.FileHandler(home_dir + "logs/application_" + today_date + ".log"),
+        logging.FileHandler(logs_dir + "application_" + today_date + ".log"),
         logging.StreamHandler(),
     ],
 )
 
 
-def check_for_dir(subdir):
+def check_for_dir(full_dir):
     """Function to create missing directories"""
-    if not exists(home_dir + subdir):
-        logging.info("%s dir does not exist, recreating..", subdir)
-        os.mkdir(home_dir + subdir)
-        logging.info("%s dir created", subdir)
+    if not exists(full_dir):
+        logging.info("%s dir does not exist, recreating..", full_dir)
+        os.mkdir(full_dir)
+        logging.info("%s dir created", full_dir)
 
 
 default_config = json.dumps(
@@ -56,13 +64,13 @@ default_config = json.dumps(
 
 def get_bins():
     """Function to get bins from local config"""
-    check_for_dir("config")
+    check_for_dir(config_dir)
     try:
-        with open(home_dir + "config/bins.json", encoding="utf-8") as config:
+        with open(config_dir + "bins.json", encoding="utf-8") as config:
             config = json.load(config)
     except FileNotFoundError:
         logging.info("bins.json config missing, generating from skeleton")
-        with open(home_dir + "config/bins.json", "w", encoding="UTF-8") as config_file:
+        with open(config_dir + "bins.json", "w", encoding="UTF-8") as config_file:
             config_file.write(
                 json.dumps(
                     {
@@ -84,13 +92,13 @@ def get_bins():
 
 def get_config():
     """Function to get configuration from local config"""
-    check_for_dir("config")
+    check_for_dir(config_dir)
     try:
-        with open(home_dir + "config/all.json", encoding="utf-8") as config:
+        with open(config_dir + "all.json", encoding="utf-8") as config:
             config = json.load(config)
     except FileNotFoundError:
         logging.info("all.json config missing, generating from skeleton")
-        with open(home_dir + "config/all.json", "w", encoding="UTF-8") as config_file:
+        with open(config_dir + "all.json", "w", encoding="UTF-8") as config_file:
             config_file.write(default_config)
             config_file.close()
         logging.info("Default config applied!")
@@ -161,9 +169,7 @@ def show_settings():
                     },
                 }
             )
-            with open(
-                home_dir + "config/all.json", "w", encoding="UTF-8"
-            ) as config_file:
+            with open(config_dir + "all.json", "w", encoding="UTF-8") as config_file:
                 config_file.write(new_config)
                 config_file.close()
             logging.info("New settings applied: %s", new_config)
@@ -205,7 +211,7 @@ def show_settings():
                     "description": bin_setting_values[2],
                 }
                 with open(
-                    home_dir + "config/bins.json", "r+", encoding="UTF-8"
+                    config_dir + "/bins.json", "r+", encoding="UTF-8"
                 ) as bin_config:
                     bin_config_data = json.load(bin_config)
                     list_position = 0
@@ -227,7 +233,7 @@ def show_settings():
                 raw_event = event.replace("Delete ", "")
                 if raw_event == del_bin["nice_name"]:
                     with open(
-                        home_dir + "config/bins.json", "r+", encoding="UTF-8"
+                        config_dir + "bins.json", "r+", encoding="UTF-8"
                     ) as bin_config:
                         bin_config_data = json.load(bin_config)
                         bin_config_data["time_bins"].pop(del_pos)
@@ -270,7 +276,7 @@ def show_settings():
                     "description": add_bin_values[2],
                 }
                 with open(
-                    home_dir + "config/bins.json", "r+", encoding="UTF-8"
+                    config_dir + "bins.json", "r+", encoding="UTF-8"
                 ) as bin_config:
                     bin_config_data = json.load(bin_config)
 
@@ -289,16 +295,14 @@ def show_settings():
 
 def get_report():
     """Function to get or generate todays report"""
-    check_for_dir("reports")
+    check_for_dir(reports_dir)
     try:
-        with open(
-            home_dir + "reports/" + today_date + ".json", encoding="utf-8"
-        ) as report:
+        with open(reports_dir + today_date + ".json", encoding="utf-8") as report:
             report = json.load(report)
     except FileNotFoundError:
         logging.info("Generating report file on first run for today")
         with open(
-            home_dir + "reports/" + today_date + ".json", "w", encoding="UTF-8"
+            reports_dir + today_date + ".json", "w", encoding="UTF-8"
         ) as report_file:
 
             report_skeleton = {}
@@ -316,8 +320,26 @@ def get_report():
 def show_report():
     """Popup modal with current time logging stats"""
     logging.info("Report opened")
-    today_report = json.loads(get_report())
-    layout = [
+
+    # Get newest files in dir
+    files = os.listdir(reports_dir)
+    paths = [os.path.join(reports_dir, basename) for basename in files]
+    paths.sort(key=os.path.getctime)
+    historic_report_list = []
+    for path in paths:
+        file_name = path.split("/")[-1].replace(".json", "")
+        with open(path, "r", encoding="UTF-8") as historic_report_item:
+            report_json = json.load(historic_report_item)
+            report_text = ""
+            for report_item in report_json:
+                report_text += (
+                    report_item + " : " + str(report_json[report_item]) + " \n"
+                )
+            layout = [[sg.T(report_text, font=font)]]
+            historic_report_list.append([sg.Tab(file_name, layout, font=font)])
+
+    historic_report_frame = [[sg.TabGroup(historic_report_list, font=font)]]
+    report_layout = [
         [
             [
                 sg.Text(
@@ -326,10 +348,11 @@ def show_report():
                 )
             ]
             for time_bin in json.loads(get_report())
-        ]
+        ],
+        [sg.Frame("Historic Reports", historic_report_frame, font=font)],
     ]
     report_window = sg.Window(
-        "Time Report", layout, use_default_focus=False, finalize=True
+        "Time Report", report_layout, use_default_focus=False, finalize=True
     )
     report_window.read()
     report_window.close()
@@ -353,7 +376,7 @@ class NotifyThread(threading.Thread):
 
     def run(self):
         start_time = time.time()
-        check_for_dir("tmp")
+        check_for_dir(tmp_dir)
         while True:
             if self.stopped():
                 logging.info("NotifyThread stopping")
@@ -362,7 +385,7 @@ class NotifyThread(threading.Thread):
             time_since = round((time.time() - start_time) / 60, 1)
             if time_since > float(config["reminder_minutes"]["value"]):
                 with open(
-                    home_dir + "tmp/do_notify", "w", encoding="UTF-8"
+                    tmp_dir + "do_notify", "w", encoding="UTF-8"
                 ) as do_notify_file:
                     do_notify_file.write(str(time.time()))
                     start_time = time.time()
@@ -421,9 +444,9 @@ def main():
             notify_thread_manage = NotifyThread()
             notify_thread_manage.start()
 
-        if exists(home_dir + "tmp/do_notify"):
+        if exists(tmp_dir + "do_notify"):
             sg.Popup("Log your time!", font=font)
-            os.remove(home_dir + "tmp/do_notify")
+            os.remove(tmp_dir + "do_notify")
         working_hours = current_config["total_hours"]["value"]
         event, main_values = main_window.read(timeout=2)
         if main_values != {}:
@@ -456,19 +479,21 @@ def main():
             show_settings()
         if event.startswith("Log"):
             # Iterate over bins looking for event
-            for bin in list_bins:
+            for event_bin in list_bins:
                 raw_event = event.replace("Log ", "")
-                if raw_event == bin["nice_name"]:
+                if raw_event == event_bin["nice_name"]:
                     try:
-                        today_report[bin["name"]] = today_report[bin["name"]] + 1
+                        today_report[event_bin["name"]] = (
+                            today_report[event_bin["name"]] + 1
+                        )
                     except KeyError:
-                        today_report[bin["name"]] = 1
-                    new_total = today_report[bin["name"]]
+                        today_report[event_bin["name"]] = 1
+                    new_total = today_report[event_bin["name"]]
                     logging.info("Meeting time logged")
                     time_logged = True
         if time_logged is True:
             with open(
-                home_dir + "reports/" + today_date + ".json",
+                reports_dir + today_date + ".json",
                 "w",
                 encoding="UTF-8",
             ) as report_file:
