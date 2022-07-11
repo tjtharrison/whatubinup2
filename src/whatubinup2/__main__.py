@@ -219,7 +219,6 @@ def show_settings():
                         if edit_bin["name"] != bin_config_item["name"]:
                             list_position += 1
                     bin_config_data["time_bins"][list_position] = new_bin_config
-
                     bin_config.seek(0)
                     bin_config.write(json.dumps(bin_config_data))
                     bin_config.truncate()
@@ -237,7 +236,6 @@ def show_settings():
                     ) as bin_config:
                         bin_config_data = json.load(bin_config)
                         bin_config_data["time_bins"].pop(del_pos)
-
                         bin_config.seek(0)
                         bin_config.write(json.dumps(bin_config_data))
                         bin_config.truncate()
@@ -279,9 +277,7 @@ def show_settings():
                     config_dir + "bins.json", "r+", encoding="UTF-8"
                 ) as bin_config:
                     bin_config_data = json.load(bin_config)
-
                     bin_config_data["time_bins"].append(add_bin_config)
-
                     bin_config.seek(0)
                     bin_config.write(json.dumps(bin_config_data))
                     bin_config.truncate()
@@ -304,12 +300,9 @@ def get_report():
         with open(
             reports_dir + today_date + ".json", "w", encoding="UTF-8"
         ) as report_file:
-
             report_skeleton = {}
-
             for update_bin in json.loads(get_bins())["time_bins"]:
                 report_skeleton.update({update_bin["name"]: 0})
-
             report_file.write(json.dumps(report_skeleton))
             report_file.close()
         logging.info("Default report_skeleton applied to report!")
@@ -320,8 +313,6 @@ def get_report():
 def show_report():
     """Popup modal with current time logging stats"""
     logging.info("Report opened")
-
-    # Get newest files in dir
     files = os.listdir(reports_dir)
     paths = [os.path.join(reports_dir, basename) for basename in files]
     paths.sort(key=os.path.getctime)
@@ -337,7 +328,6 @@ def show_report():
                 )
             layout = [[sg.T(report_text, font=font)]]
             historic_report_list.append([sg.Tab(file_name, layout, font=font)])
-
     historic_report_frame = [[sg.TabGroup(historic_report_list, font=font)]]
     report_layout = [
         [
@@ -443,7 +433,6 @@ def main():
             ## Launch thread
             notify_thread_manage = NotifyThread()
             notify_thread_manage.start()
-
         if exists(tmp_dir + "do_notify"):
             sg.Popup("Log your time!", font=font)
             os.remove(tmp_dir + "do_notify")
