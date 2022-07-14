@@ -5,10 +5,18 @@ import os
 import os.path
 import threading
 import time
-from datetime import date
+from datetime import date, datetime, timedelta
 from os.path import exists, expanduser
 
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
 import PySimpleGUI as sg
+
+SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 home_dir = expanduser("~") + "/whatubinup2/"
 reports_dir = home_dir + "reports/"
@@ -59,6 +67,60 @@ default_config = json.dumps(
         },
     }
 )
+
+
+def get_cal_meeting():
+    """ Checks for events in Gcal with zoom links over the notification 
+    cadence
+    """
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'google.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+
+    try:
+        service = build('calendar', 'v3', credentials=creds)
+
+        # Call the Calendar API
+        current_date = datetime.now()
+        start_time = current_date - timedelta(minutes=60)
+        events_result = service.events().list(calendarId='primary',
+                                                timeMax=current_date.isoformat() + 'Z',
+                                                timeMin=start_time.isoformat() + 'Z',
+                                              maxResults=1, singleEvents=True,
+                                              orderBy='startTime').execute()
+        events = events_result.get('items', [])
+
+        for event in events:
+            if "zoom.us" in event["conferenceData"]["entryPoints"][0]["uri"]:
+                return True
+
+        return False
+
+        # if not events:
+        #     print('No upcoming events found.')
+        #     return
+
+        # # Prints the start and name of the next 10 events
+        # for event in events:
+        #     start = event['start'].get('dateTime', event['start'].get('date'))
+        #     print(start, event['summary'])
+
+    except HttpError as error:
+        print('An error occurred: %s' % error)
 
 
 def get_bins():
@@ -425,7 +487,12 @@ def main():
 
         if len(threading.enumerate()) < 2:
             if not first_run:
-                sg.Popup("Log your time!", font=font)
+                meeting_found = get_cal_meeting()
+                if meeting_found:
+                    popup_message = "Looks like you've been in a meeting.."
+                else:
+                    popup_message = "Log your time!"
+                sg.Popup(popup_message, font=font)
                 logging.info("Time logging prompt acknowledged")
             notify_thread_manage = NotifyThread()
             notify_thread_manage.start()
