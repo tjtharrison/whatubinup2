@@ -373,8 +373,8 @@ class NotifyThread(threading.Thread):
             config = json.loads(get_config())
             time_since = round((time.time() - start_time) / 60, 1)
             if time_since > float(config["reminder_minutes"]["value"]):
-                    logging.debug("Required time elapsed, triggering notification")
-                    return True
+                logging.debug("Required time elapsed, triggering notification")
+                return True
             else:
                 remaining_time = round(
                     float(config["reminder_minutes"]["value"]) - time_since, 1
