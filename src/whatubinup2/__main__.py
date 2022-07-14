@@ -8,15 +8,14 @@ import time
 from datetime import date, datetime, timedelta
 from os.path import exists, expanduser
 
+import PySimpleGUI as sg
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-import PySimpleGUI as sg
-
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 home_dir = expanduser("~") + "/whatubinup2/"
 reports_dir = home_dir + "reports/"
@@ -70,39 +69,45 @@ default_config = json.dumps(
 
 
 def get_cal_meeting():
-    """ Checks for events in Gcal with zoom links over the notification 
+    """Checks for events in Gcal with zoom links over the notification
     cadence
     """
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if os.path.exists("token.json"):
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'google.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file("google.json", SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('token.json', 'w') as token:
+        with open("token.json", "w") as token:
             token.write(creds.to_json())
 
     try:
-        service = build('calendar', 'v3', credentials=creds)
+        service = build("calendar", "v3", credentials=creds)
 
         # Call the Calendar API
         current_date = datetime.now()
         start_time = current_date - timedelta(minutes=60)
-        events_result = service.events().list(calendarId='primary',
-                                                timeMax=current_date.isoformat() + 'Z',
-                                                timeMin=start_time.isoformat() + 'Z',
-                                              maxResults=1, singleEvents=True,
-                                              orderBy='startTime').execute()
-        events = events_result.get('items', [])
+        events_result = (
+            service.events()
+            .list(
+                calendarId="primary",
+                timeMax=current_date.isoformat() + "Z",
+                timeMin=start_time.isoformat() + "Z",
+                maxResults=1,
+                singleEvents=True,
+                orderBy="startTime",
+            )
+            .execute()
+        )
+        events = events_result.get("items", [])
 
         for event in events:
             if "zoom.us" in event["conferenceData"]["entryPoints"][0]["uri"]:
@@ -120,7 +125,7 @@ def get_cal_meeting():
         #     print(start, event['summary'])
 
     except HttpError as error:
-        print('An error occurred: %s' % error)
+        print("An error occurred: %s" % error)
 
 
 def get_bins():
@@ -440,7 +445,9 @@ class NotifyThread(threading.Thread):
                 remaining_time = round(
                     float(config["reminder_minutes"]["value"]) - time_since, 1
                 )
-                logging.debug("Not yet ready to notify, %s minutes left", remaining_time)
+                logging.debug(
+                    "Not yet ready to notify, %s minutes left", remaining_time
+                )
                 time.sleep(1)
 
 
