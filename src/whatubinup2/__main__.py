@@ -378,7 +378,9 @@ class NotifyThread(threading.Thread):
                 remaining_time = round(
                     float(config["reminder_minutes"]["value"]) - time_since, 1
                 )
-                logging.debug("Not yet ready to notify, %s minutes left", remaining_time)
+                logging.debug(
+                    "Not yet ready to notify, %s minutes left", remaining_time
+                )
                 time.sleep(1)
 
 
