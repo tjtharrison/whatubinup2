@@ -13,7 +13,6 @@ import PySimpleGUI as sg
 home_dir = expanduser("~") + "/whatubinup2/"
 reports_dir = home_dir + "reports/"
 config_dir = home_dir + "config/"
-tmp_dir = home_dir + "tmp/"
 logs_dir = home_dir + "logs/"
 
 today = date.today()
@@ -366,7 +365,6 @@ class NotifyThread(threading.Thread):
 
     def run(self):
         start_time = time.time()
-        check_for_dir(tmp_dir)
         while True:
             if self.stopped():
                 logging.info("NotifyThread stopping")
@@ -374,19 +372,14 @@ class NotifyThread(threading.Thread):
             config = json.loads(get_config())
             time_since = round((time.time() - start_time) / 60, 1)
             if time_since > float(config["reminder_minutes"]["value"]):
-                with open(
-                    tmp_dir + "do_notify", "w", encoding="UTF-8"
-                ) as do_notify_file:
-                    do_notify_file.write(str(time.time()))
-                    start_time = time.time()
-                    logging.debug("Notification sent, timer restarting")
-                    continue
+                logging.debug("Required time elapsed, triggering notification")
+                return True
             else:
                 remaining_time = round(
                     float(config["reminder_minutes"]["value"]) - time_since, 1
                 )
                 logging.debug("Not ready to notify, %s minutes left", remaining_time)
-                time.sleep(9)
+                time.sleep(1)
 
 
 def main():
@@ -424,18 +417,19 @@ def main():
     main_window = sg.Window(
         "What U bin up 2", main_layout, keep_on_top=True, location=(1000, 200)
     )
+    first_run = True
     while True:
         today_report = json.loads(get_report())
         current_config = json.loads(get_config())
         list_bins = json.loads(get_bins())["time_bins"]
-        if start_notifier is True:
-            start_notifier = False
-            ## Launch thread
+
+        if len(threading.enumerate()) < 2:
+            if not first_run:
+                sg.Popup("Log your time!", font=font)
+                logging.info("Time logging prompt acknowledged")
             notify_thread_manage = NotifyThread()
             notify_thread_manage.start()
-        if exists(tmp_dir + "do_notify"):
-            sg.Popup("Log your time!", font=font)
-            os.remove(tmp_dir + "do_notify")
+            first_run = False
         working_hours = current_config["total_hours"]["value"]
         event, main_values = main_window.read(timeout=2)
         if main_values != {}:
