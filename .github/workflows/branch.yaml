@@ -78,6 +78,7 @@ jobs:
       - name: Code linting
         run: |
           pip3 install -r requirements.txt
+          pip3 install -r requirements-html.txt
           python3 -m pylint --fail-under=9.5 $(find . -name "*.py" -not -path "./tests/*")
       - name: Test build
         run: |
