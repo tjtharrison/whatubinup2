@@ -1,0 +1,148 @@
+<head>
+    <title>WUBU2</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+        integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.0/css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
+    <link rel='stylesheet' href='/static/styles.css' />
+</head>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Display&display=swap');
+
+    h1,
+    h2,
+    h3 {
+        text-transform: uppercase;
+        color: #72BB94;
+    }
+
+    body h2 {
+        border-top: solid 2px #72BB94;
+        border-bottom: solid 2px #72BB94;
+        padding: 5px 0;
+    }
+
+    span.green,
+    a {
+        color: #72BB94;
+    }
+
+    span.green {
+        font-weight: bold;
+    }
+
+
+    body {
+        font-family: 'Open Sans', 'sans-serif';
+        width: 80%;
+        margin: 0 auto;
+    }
+
+    #header_wrapper {
+        width: 100%;
+        text-align: center;
+        color: white;
+        padding: 20px 10px;
+    }
+
+    #header_block h1 {
+        color: #B79E74;
+    }
+
+    ul.navigation li {
+        display: inline-block;
+
+    }
+
+    ul.navigation li a {
+        text-decoration: none;
+        color: #72BB94;
+        padding: 10px;
+        border-radius: 4px;
+    }
+
+    a:hover {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    img[alt="me"] {
+        display: none;
+    }
+
+    img.me {
+        border-radius: 50%;
+        border: solid 5px #72BB94;
+        height: 250px;
+        margin: 10px;
+    }
+
+    img {
+        float: right;
+        height: 250px;
+    }
+
+    ul.navigation {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    p.deploy_message {
+        font-style: italic;
+    }
+
+    .md {
+        display: none;
+    }
+
+</style>
+
+<div id="header_block">
+    <p class="deploy_message">Download page for WUBU2 <a href="https://github.com/teamjtharrison/whatubinup2"
+            target="_blank">teamjtharrison/whatubinup2</a> built and maintained by <a
+            href="https://readme.tjth.co">TimH</a></a></p>
+    <div id="header_wrapper">
+
+        <h2>WUBU2</h2>
+        <h3>Light time logging app</h3>
+
+        <ul class="navigation">
+            <li><a href="/">Home</a></li>
+            <li><a href="#">Download</a></li>
+        </ul>
+    </div>
+</div>
+
+<div id="body">
+    </div></div><h1>What U bin up 2</h1>
+<p>A small widget for tracking hours daily across a set of time bins.</p>
+<h1>Usage</h1>
+<p>To use the widget, install via pip:</p>
+<pre class="highlight"><pre>pip3 install whatubinup2</pre></pre>
+<p>Launch the client!</p>
+<pre class="highlight"><pre>whatubinup2</pre></pre>
+<p>On first launch, default settings will be applied (8 hour working days with 10 minute reminders). Config files and reports are stored in <pre>~/whatubinup2/</pre></p>
+<h1>Local Development</h1>
+<p>To develop locally, install dependencies:</p>
+<pre class="highlight"><pre>pip3 install -r requirements.txt</pre></pre>
+<p>Launch the client:</p>
+<pre class="highlight"><pre>python3 src/whatubinup2/__main__.py</pre></pre>
+<h1>Build process</h1>
+<p>Build testing, code linting, package bump and publishing are completed via Github actions (<pre>.github/workflows/</pre>).</p>
+<p>Build scripts require a commit message in the following format to generate a pull request</p>
+<pre class="highlight"><pre>[PR|WIP]/$commit_message[[major]|[minor]|[patch]|[none]]</pre></pre>
+<p>Example to create a PR for a patch change:</p>
+<pre class="highlight"><pre>PR/some small fix [patch]</pre></pre>
+<h1>Features coming soon</h1>
+<ul>
+<li>Let me know!</li>
+</ul>
+<h1>Stretch features</h1>
+<ul>
+<li>Integration with gcal? (See you've been in a meeting)</li>
+</ul>
+</div>

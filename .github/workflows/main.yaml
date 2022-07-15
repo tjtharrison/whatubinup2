@@ -91,4 +91,18 @@ jobs:
           echo "Building dist.."
           python3 setup.py bdist_wheel
 
+          echo "Uploading to pypi"
           ~/.local/bin/twine upload dist/*
+
+          echo "Generating .app"
+          python3 setup.py py2app
+          
+          echo "Copying app into docs/"
+          cp dist/whatubinup2.app docs/static/whatubinup2.app
+
+          echo "Cleaning up before commit"
+          rm -rf dist build
+      - name: Commit bundled app package
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Commit bundled app
