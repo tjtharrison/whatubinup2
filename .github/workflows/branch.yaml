@@ -98,7 +98,3 @@ jobs:
               echo "$status"
               exit 1
           fi
-
-          # Trying MacOS build
-          python3 setup.py py2app
-
