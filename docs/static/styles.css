@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Display&display=swap');
+
+h1,h2, h3 {
+    text-transform: uppercase;
+    color: #72BB94;
+}
+
+body h2 {
+    border-top: solid 2px #72BB94;
+    border-bottom: solid 2px #72BB94;
+    padding: 5px 0;
+}
+
+span.green, a {
+	color: #72BB94;
+}
+
+span.green {
+    font-weight: bold;
+}
+
+
+body {
+    font-family:'Open Sans', 'sans-serif';
+    width:80%;
+    margin: 0 auto;
+}
+
+#header_wrapper {
+    width:100%;
+    text-align: center;
+    color:white;
+    padding: 20px 10px;
+}
+
+#header_block h1 {
+    color: #B79E74;
+}
+
+ul.navigation li {
+    display: inline-block;
+
+}
+
+ul.navigation li a {
+    text-decoration: none;
+    color: #72BB94;
+    padding:10px;
+    border-radius:4px;
+}
+
+a:hover {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+img[alt="me"] {
+    display:none;
+}
+
+img.me {
+    border-radius:50%;
+    border: solid 5px  #72BB94;
+    height:250px;
+    margin:10px;
+}
+
+img {
+    float:right;
+    height: 250px;
+}
+
+ul.navigation {
+    margin:0;
+    padding:0;
+    width:100%;
+}
+
+p.deploy_message {
+    font-style: italic;
+}
+
+.md {
+    display: none;
+}

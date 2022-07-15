@@ -8,3 +8,4 @@ config/*
 dist
 .DS_Store
 build
+src/whatubinup2/*.json

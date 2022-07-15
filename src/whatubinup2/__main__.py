@@ -1,3 +1,4 @@
+# coding=utf8
 """ Simple UI for Time logging """
 import json
 import logging
