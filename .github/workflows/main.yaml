@@ -98,7 +98,7 @@ jobs:
           python3 setup.py py2app
           
           echo "Copying app into docs/"
-          cp dist/MacOS/whatubinup2 docs/static/wubu2.app
+          cp dist/whatubinup2.app docs/static/whatubinup2.app
 
           echo "Cleaning up before commit"
           rm -rf dist build
