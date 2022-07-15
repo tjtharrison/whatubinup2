@@ -82,6 +82,7 @@ jobs:
       - name: Build and publish
         if: env.DO_RELEASE == 'true'
         run: |
+          sudo apt-get install zlib1g-dev -y 
           python3 -m pip install --user --upgrade setuptools wheel twine
           pip3 install -r requirements.txt 
           
