@@ -2,15 +2,23 @@
 
 A small widget for tracking hours daily across a set of time bins.
 
-# Usage
+# Installation
 
-To use the widget, install via pip:
+To use the widget, install via one of the following methods:
+
+## Pip
 
 ```
 pip3 install whatubinup2
 ```
 
-Launch the client!
+## MacOS .app
+
+Download the MacOS app from [here](https://teamjtharrison.github.io/whatubinup2/)
+
+# Launching
+
+If installed via pip, launch from the terminal as:
 
 ```
 whatubinup2
