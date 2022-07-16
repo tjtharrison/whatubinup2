@@ -124,6 +124,6 @@ jobs:
           python-version: '3.9.0 - 3.9.0'
       - name: Test Windows build
         run: |
-          pip3 install -r requirements.txt
+          pip3 install -r requirements-win.txt
 
-          python setup.py py2exe
+          python setup-win.py py2exe
