@@ -4,6 +4,7 @@ Used by py2app to create .app
 """
 
 from setuptools import setup
+import py2exe
 
 APP = ["src/whatubinup2/__main__.py"]
 DATA_FILES = []
