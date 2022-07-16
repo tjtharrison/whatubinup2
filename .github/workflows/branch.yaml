@@ -103,7 +103,7 @@ jobs:
     steps:
       - name: Test macOS build
         run: |
-          pip3 install requirements.txt
+          pip3 install -r requirements.txt
 
           python3 setup.py py2app
           # zip -r docs/downloads/whatubinup2.app.zip dist/whatubinup2.app/
@@ -112,6 +112,6 @@ jobs:
     steps:
       - name: Test Windows build
         run: |
-          pip3 install requirements.txt
+          pip3 install -r requirements.txt
 
           python setup.py py2exe
