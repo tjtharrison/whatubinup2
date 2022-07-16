@@ -1,2 +1,2 @@
 PySimpleGUI==4.60.1
-py2app
+py2app==0.28.2
