@@ -98,3 +98,16 @@ jobs:
               echo "$status"
               exit 1
           fi
+      - name: Test macOS build
+        runs-on: macos-latest
+        run: |
+          pip3 install requirements.txt
+
+          python3 setup.py py2app
+          zip -r docs/downloads/whatubinup2.app.zip dist/whatubinup2.app/
+      - name: Test Windows build
+        runs-on: windows-latest
+        run: |
+          pip3 install requirements.txt
+
+          python setup.py py2exe
