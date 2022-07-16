@@ -102,7 +102,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Test macOS build
-        
         run: |
           pip3 install requirements.txt
 
@@ -112,7 +111,6 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Test Windows build
-        runs-on: windows-latest
         run: |
           pip3 install requirements.txt
 
