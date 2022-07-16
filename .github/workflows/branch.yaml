@@ -64,7 +64,7 @@ jobs:
                 }
             }
   code-linting:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -98,13 +98,19 @@ jobs:
               echo "$status"
               exit 1
           fi
+  test-macos:
+    runs-on: macos-latest
+    steps:
       - name: Test macOS build
-        runs-on: macos-latest
+        
         run: |
           pip3 install requirements.txt
 
           python3 setup.py py2app
-          zip -r docs/downloads/whatubinup2.app.zip dist/whatubinup2.app/
+          # zip -r docs/downloads/whatubinup2.app.zip dist/whatubinup2.app/
+  test-windows:
+    runs-on: windows-latest
+    steps:
       - name: Test Windows build
         runs-on: windows-latest
         run: |
