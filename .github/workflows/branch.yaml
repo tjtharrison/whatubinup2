@@ -101,6 +101,12 @@ jobs:
   test-macos:
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch_depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9.0 - 3.9.0'
       - name: Test macOS build
         run: |
           pip3 install -r requirements.txt
@@ -110,6 +116,12 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch_depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9.0 - 3.9.0'
       - name: Test Windows build
         run: |
           pip3 install -r requirements.txt
