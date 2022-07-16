@@ -3,8 +3,8 @@ Placeholder required for wheel generation
 Used by py2app to create .app
 """
 
-from setuptools import setup
 import py2exe
+from setuptools import setup
 
 APP = ["src/whatubinup2/__main__.py"]
 DATA_FILES = []
