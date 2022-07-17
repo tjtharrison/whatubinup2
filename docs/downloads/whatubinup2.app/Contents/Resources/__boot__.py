@@ -132,7 +132,56 @@ def _recipes_pil_prescript(plugins):
     Image.init = init
 
 
-_recipes_pil_prescript(['SunImagePlugin', 'Hdf5StubImagePlugin', 'PpmImagePlugin', 'FtexImagePlugin', 'FitsImagePlugin', 'BlpImagePlugin', 'SpiderImagePlugin', 'GbrImagePlugin', 'PsdImagePlugin', 'PcdImagePlugin', 'PcxImagePlugin', 'IptcImagePlugin', 'BmpImagePlugin', 'MicImagePlugin', 'ImtImagePlugin', 'JpegImagePlugin', 'IcoImagePlugin', 'MpegImagePlugin', 'PalmImagePlugin', 'XVThumbImagePlugin', 'FliImagePlugin', 'CurImagePlugin', 'FitsStubImagePlugin', 'XbmImagePlugin', 'PixarImagePlugin', 'PdfImagePlugin', 'WmfImagePlugin', 'DdsImagePlugin', 'SgiImagePlugin', 'PngImagePlugin', 'GifImagePlugin', 'IcnsImagePlugin', 'FpxImagePlugin', 'ImImagePlugin', 'BufrStubImagePlugin', 'McIdasImagePlugin', 'TgaImagePlugin', 'GribStubImagePlugin', 'Jpeg2KImagePlugin', 'TiffImagePlugin', 'DcxImagePlugin', 'EpsImagePlugin', 'WebPImagePlugin', 'MpoImagePlugin', 'XpmImagePlugin', 'MspImagePlugin'])
+_recipes_pil_prescript(
+    [
+        "SunImagePlugin",
+        "Hdf5StubImagePlugin",
+        "PpmImagePlugin",
+        "FtexImagePlugin",
+        "FitsImagePlugin",
+        "BlpImagePlugin",
+        "SpiderImagePlugin",
+        "GbrImagePlugin",
+        "PsdImagePlugin",
+        "PcdImagePlugin",
+        "PcxImagePlugin",
+        "IptcImagePlugin",
+        "BmpImagePlugin",
+        "MicImagePlugin",
+        "ImtImagePlugin",
+        "JpegImagePlugin",
+        "IcoImagePlugin",
+        "MpegImagePlugin",
+        "PalmImagePlugin",
+        "XVThumbImagePlugin",
+        "FliImagePlugin",
+        "CurImagePlugin",
+        "FitsStubImagePlugin",
+        "XbmImagePlugin",
+        "PixarImagePlugin",
+        "PdfImagePlugin",
+        "WmfImagePlugin",
+        "DdsImagePlugin",
+        "SgiImagePlugin",
+        "PngImagePlugin",
+        "GifImagePlugin",
+        "IcnsImagePlugin",
+        "FpxImagePlugin",
+        "ImImagePlugin",
+        "BufrStubImagePlugin",
+        "McIdasImagePlugin",
+        "TgaImagePlugin",
+        "GribStubImagePlugin",
+        "Jpeg2KImagePlugin",
+        "TiffImagePlugin",
+        "DcxImagePlugin",
+        "EpsImagePlugin",
+        "WebPImagePlugin",
+        "MpoImagePlugin",
+        "XpmImagePlugin",
+        "MspImagePlugin",
+    ]
+)
 
 
 def _setup_ctypes():
@@ -148,10 +197,11 @@ _setup_ctypes()
 
 
 def _boot_multiprocessing():
-    import sys
     import multiprocessing.spawn
+    import sys
 
     orig_get_command_line = multiprocessing.spawn.get_command_line
+
     def wrapped_get_command_line(**kwargs):
         orig_frozen = sys.frozen
         del sys.frozen
@@ -159,54 +209,65 @@ def _boot_multiprocessing():
             return orig_get_command_line(**kwargs)
         finally:
             sys.frozen = orig_frozen
+
     multiprocessing.spawn.get_command_line = wrapped_get_command_line
+
 
 _boot_multiprocessing()
 
 
-import pkg_resources, zipimport, os
+import os
+import zipimport
+
+import pkg_resources
+
 
 def find_eggs_in_zip(importer, path_item, only=False):
-    if importer.archive.endswith('.whl'):
+    if importer.archive.endswith(".whl"):
         # wheels are not supported with this finder
         # they don't have PKG-INFO metadata, and won't ever contain eggs
         return
 
     metadata = pkg_resources.EggMetadata(importer)
-    if metadata.has_metadata('PKG-INFO'):
+    if metadata.has_metadata("PKG-INFO"):
         yield Distribution.from_filename(path_item, metadata=metadata)
-    for subitem in metadata.resource_listdir(''):
+    for subitem in metadata.resource_listdir(""):
         if not only and pkg_resources._is_egg_path(subitem):
             subpath = os.path.join(path_item, subitem)
             dists = find_eggs_in_zip(zipimport.zipimporter(subpath), subpath)
             for dist in dists:
                 yield dist
-        elif subitem.lower().endswith(('.dist-info', '.egg-info')):
+        elif subitem.lower().endswith((".dist-info", ".egg-info")):
             subpath = os.path.join(path_item, subitem)
             submeta = pkg_resources.EggMetadata(zipimport.zipimporter(subpath))
             submeta.egg_info = subpath
-            yield pkg_resources.Distribution.from_location(path_item, subitem, submeta)  # noqa: B950
+            yield pkg_resources.Distribution.from_location(
+                path_item, subitem, submeta
+            )  # noqa: B950
+
 
 def _fixup_pkg_resources():
     pkg_resources.register_finder(zipimport.zipimporter, find_eggs_in_zip)
     pkg_resources.working_set.entries = []
     list(map(pkg_resources.working_set.add_entry, sys.path))
 
-_fixup_pkg_resources()
 
+_fixup_pkg_resources()
 
 
 def _setup_openssl():
     import os
+
     resourcepath = os.environ["RESOURCEPATH"]
-    os.environ["SSL_CERT_FILE"] = os.path.join(
-        resourcepath, "openssl.ca", "cert.pem")
+    os.environ["SSL_CERT_FILE"] = os.path.join(resourcepath, "openssl.ca", "cert.pem")
     os.environ["SSL_CERT_DIR"] = os.path.join(
-        resourcepath, "openssl.ca", "no-such-file")
+        resourcepath, "openssl.ca", "no-such-file"
+    )
+
 
 _setup_openssl()
 
 
-DEFAULT_SCRIPT='__main__.py'
-SCRIPT_MAP={}
+DEFAULT_SCRIPT = "__main__.py"
+SCRIPT_MAP = {}
 _run()
