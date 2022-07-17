@@ -12,10 +12,6 @@ To use the widget, install via one of the following methods:
 pip3 install whatubinup2
 ```
 
-## MacOS .app
-
-Download the MacOS app from [here](https://teamjtharrison.github.io/whatubinup2/)
-
 # Launching
 
 If installed via pip, launch from the terminal as:
