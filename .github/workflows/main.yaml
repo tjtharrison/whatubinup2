@@ -99,29 +99,3 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Commit bundled app
-
-  mac-os-build:
-    runs-on: macos-latest
-    steps:
-      - name: Repo checkout
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-      - name: Build package
-        run: |
-          python3 -m pip install --user --upgrade setuptools wheel twine
-          pip3 install -r requirements.txt 
-
-          echo "Building macOS app"
-          python3 setup.py py2app
-
-          echo "Compressing .app into docs/ for download"
-          cd dist
-          zip -r ../docs/downloads/whatubinup2.app.zip whatubinup2.app
-          cd $GITHUB_WORKSPACE
-          rm -rf dist build
-      - name: Commit bundled app package
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Commit bundled app
