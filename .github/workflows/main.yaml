@@ -96,7 +96,16 @@ jobs:
 
           echo "Uploading to pypi"
           ~/.local/bin/twine upload dist/*
+
+          echo "Building macOS app"
+          python3 setup.py py2app
+
+          echo "Compressing .app into docs/ for download"
+          cd dist && zip -r ../docs/downloads/whatubinup2.app.zip whatubinup2.app
+          cd $GITHUB_WORKSPACE
+          rm -rf dist build
       - name: Commit bundled app package
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Commit bundled app
+        
