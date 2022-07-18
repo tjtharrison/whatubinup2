@@ -16,18 +16,14 @@
     h2,
     h3 {
         text-transform: uppercase;
-        color: #72BB94;
+        color: #96C5F7;
     }
 
-    body h2 {
-        border-top: solid 2px #72BB94;
-        border-bottom: solid 2px #72BB94;
-        padding: 5px 0;
-    }
 
     span.green,
     a {
-        color: #72BB94;
+        color: #F2F4FF;
+        text-decoration: underline;
     }
 
     span.green {
@@ -37,31 +33,30 @@
 
     body {
         font-family: 'Open Sans', 'sans-serif';
+        margin: 0 auto;
+    }
+
+    .content_wrapper{
         width: 80%;
         margin: 0 auto;
     }
 
     #header_wrapper {
-        width: 100%;
         text-align: center;
         color: white;
         padding: 20px 10px;
     }
 
-    #header_block h1 {
-        color: #B79E74;
+    #header_block {
+        background: #A9D3FF;
+        width: 100%;
+        color: #F2F4FF;
     }
 
-    ul.navigation li {
-        display: inline-block;
-
-    }
-
-    ul.navigation li a {
-        text-decoration: none;
-        color: #72BB94;
-        padding: 10px;
-        border-radius: 4px;
+    #header_block h1,
+    #header_block h2,
+    #header_block h3 {
+        color:#F2F4FF;
     }
 
     a:hover {
@@ -102,50 +97,47 @@
 </style>
 
 <div id="header_block">
-    <p class="deploy_message">Download page for WUBU2 <a href="https://github.com/teamjtharrison/whatubinup2"
+    
+    <div id="header_wrapper" class="content_wrapper">
+        <p class="deploy_message">Download page for WUBU2 <a href="https://github.com/teamjtharrison/whatubinup2"
             target="_blank">teamjtharrison/whatubinup2</a> built and maintained by <a
             href="https://readme.tjth.co">TimH</a></a></p>
-    <div id="header_wrapper">
-
         <h2>WUBU2</h2>
         <h3>Light time logging app</h3>
-
-        <ul class="navigation">
-            <li><a href="/">Home</a></li>
-            <li><a href="/whatubinup2/downloads/whatubinup2.app.zip">Download MacOS</a></li>
-        </ul>
     </div>
 </div>
 
-<div id="body">
-    </div></div><h1>What U bin up 2</h1>
-<p>A small widget for tracking hours daily across a set of time bins.</p>
-<h1>Installation</h1>
-<p>To use the widget, install via one of the following methods:</p>
-<h2>Pip</h2>
-<pre class="highlight"><pre>pip3 install whatubinup2</pre></pre>
-<h2>MacOS .app</h2>
-<p>Download the MacOS app from <a href="https://teamjtharrison.github.io/whatubinup2/">here</a></p>
-<h1>Launching</h1>
-<p>If installed via pip, launch from the terminal as:</p>
-<pre class="highlight"><pre>whatubinup2</pre></pre>
+<div id="body" class="content_wrapper">
+    <h1>What U bin up 2</h1>
+<p>A small desktop app widget for tracking hours across a set of time bins.</p>
+<h2>Installation</h2>
+<p>To use the package, install via pip..</p>
+<p><pre>pip3 install whatubinup2</pre></p>
+<h2>Launching</h2>
+<p>Launch from the terminal as:</p>
+<p><pre>whatubinup2</pre></p>
 <p>On first launch, default settings will be applied (8 hour working days with 10 minute reminders). Config files and reports are stored in <pre>~/whatubinup2/</pre></p>
-<h1>Local Development</h1>
+<h2>Local Development</h2>
 <p>To develop locally, install dependencies:</p>
-<pre class="highlight"><pre>pip3 install -r requirements.txt</pre></pre>
+<p><pre>pip3 install -r requirements.txt</pre></p>
 <p>Launch the client:</p>
-<pre class="highlight"><pre>python3 src/whatubinup2/__main__.py</pre></pre>
-<h1>Build process</h1>
-<p>Build testing, code linting, package bump and publishing are completed via Github actions (<pre>.github/workflows/</pre>).</p>
+<p><pre>python3 src/whatubinup2/__main__.py</pre></p>
+<h2>Github Pages</h2>
+<p>The github pages site is generated via a script in the pipeline by converting README.md into html and concatenating with template.html from the roor directory. To work on this locally, build the docker container using docker-compose:</p>
+<p><pre>docker-compose up -d</pre></p>
+<p>If you want to republish the README.md into the container, run the below script to reprocess the markdown:</p>
+<p><pre>python3 scripts/convert_markdown.py</pre></p>
+<h2>Build process</h2>
+<p>Build testing, code linting, package bump and publishing are completed via Github actions.</p>
 <p>Build scripts require a commit message in the following format to generate a pull request</p>
-<pre class="highlight"><pre>[PR|WIP]/$commit_message[[major]|[minor]|[patch]|[none]]</pre></pre>
+<p><pre>[PR|WIP]/$commit_message[[major]|[minor]|[patch]|[none]]</pre></p>
 <p>Example to create a PR for a patch change:</p>
-<pre class="highlight"><pre>PR/some small fix [patch]</pre></pre>
-<h1>Features coming soon</h1>
+<p><pre>PR/some small fix [patch]</pre></p>
+<h2>Features coming soon</h2>
 <ul>
 <li>Let me know!</li>
 </ul>
-<h1>Stretch features</h1>
+<h2>Stretch features</h2>
 <ul>
 <li>Integration with gcal? (See you've been in a meeting)</li>
 </ul> 

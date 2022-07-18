@@ -1,0 +1,11 @@
+# Launch http container to work on website
+version: '3.7'
+services:
+  docs:
+    restart: always
+    container_name: whatubbinup2docs
+    image: 'httpd:2.4'
+    volumes: 
+       - './docs:/usr/local/apache2/htdocs'
+    ports:
+      - '8080:80'

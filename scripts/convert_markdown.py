@@ -33,12 +33,6 @@ for file_name in glob.iglob("README.md", recursive=True):
         for fix_item in fix_list:
             html = html.replace(fix_item[0], fix_item[1])
 
-        # Append header block
-        if "<!-- EndHead -->" in html:
-            html = html.replace("<!-- EndHead -->", "</div></div>")
-        else:
-            html = "</div></div>" + html
-
     # Load header content
     with open(TEMPLATE_FILE, "r", encoding="UTF-8") as t:
         completed_template = t.read().replace("{{ BODY }}", html)
