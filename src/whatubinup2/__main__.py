@@ -6,9 +6,9 @@ import os
 import os.path
 import threading
 import time
+import webbrowser
 from datetime import date
 from os.path import exists, expanduser
-import webbrowser
 
 import PySimpleGUI as sg
 
@@ -365,21 +365,27 @@ def show_report():
         "Time Report", report_layout, use_default_focus=False, finalize=True
     )
     report_window.read()
-    
+
     report_window.close()
+
 
 def show_about():
     """Popup modal with the about page for the app"""
     about_layout = [
         [sg.Text("About WUBU2", font=big_font)],
-        [sg.Text("WUBU2 was written to fit the need of a small app to log times into big buckets during a working day", font=font)],
+        [
+            sg.Text(
+                "WUBU2 was written to fit the need of a small app to log times into big buckets during a working day",
+                font=font,
+            )
+        ],
         [
             sg.Text("App website: ", font=font),
-            sg.Text(website_link, font=font, enable_events=True, key='WEBSITE_LINK')
+            sg.Text(website_link, font=font, enable_events=True, key="WEBSITE_LINK"),
         ],
         [
             sg.Text("About the Author: ", font=font),
-            sg.Text(author_link, font=font, enable_events=True, key='AUTHOR_LINK')
+            sg.Text(author_link, font=font, enable_events=True, key="AUTHOR_LINK"),
         ],
     ]
     about_window = sg.Window(
