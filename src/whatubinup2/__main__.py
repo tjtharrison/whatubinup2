@@ -8,6 +8,7 @@ import threading
 import time
 from datetime import date
 from os.path import exists, expanduser
+import webbrowser
 
 import PySimpleGUI as sg
 
@@ -16,11 +17,27 @@ reports_dir = home_dir + "reports/"
 config_dir = home_dir + "config/"
 logs_dir = home_dir + "logs/"
 
+website_link = "https://teamjtharrison.github.io/whatubinup2"
+author_link = "https://readme.tjth.co"
+
 today = date.today()
 today_date = today.strftime("%y-%m-%d")
 font = ("Open Sans", 15)
 big_font = ("Open Sans", 25)
-sg.theme("DarkGrey4")
+
+sg.LOOK_AND_FEEL_TABLE["WUBU2"] = {
+    "BACKGROUND": "#96C5F7",
+    "TEXT": "#F2F4FF",
+    "INPUT": "#A9D3FF",
+    "TEXT_INPUT": "#F2F4FF",
+    "SCROLL": "#99CC99",
+    "BUTTON": ("#A9D3FF", "#FFFFFF"),
+    "PROGRESS": ("# D1826B", "# CC8019"),
+    "BORDER": 0,
+    "SLIDER_DEPTH": 1,
+    "PROGRESS_DEPTH": 0,
+}
+sg.theme("wubu2")
 
 # Check for home dir
 if not exists(home_dir):
@@ -111,7 +128,7 @@ def show_settings():
     logging.info("Settings opened")
     config = json.loads(get_config())
     settings_layout = [
-        [sg.Text("Settings", font=font)],
+        [sg.Text("Settings", font=big_font)],
         [
             sg.Text(
                 "Total Hours", font=font, tooltip=config["total_hours"]["description"]
@@ -204,6 +221,8 @@ def show_settings():
                 "Edit bin", edit_bin_layout, use_default_focus=False, finalize=True
             )
             event, bin_setting_values = edit_bin_window.read()
+            if event == sg.WIN_CLOSED:
+                settings_window.close()
             if event == "Save":
                 new_bin_config = {
                     "name": bin_setting_values[1],
@@ -330,6 +349,7 @@ def show_report():
             historic_report_list.append([sg.Tab(file_name, layout, font=font)])
     historic_report_frame = [[sg.TabGroup(historic_report_list, font=font)]]
     report_layout = [
+        [sg.Text("Todays", font=big_font)],
         [
             [
                 sg.Text(
@@ -345,7 +365,33 @@ def show_report():
         "Time Report", report_layout, use_default_focus=False, finalize=True
     )
     report_window.read()
+    
     report_window.close()
+
+def show_about():
+    """Popup modal with the about page for the app"""
+    about_layout = [
+        [sg.Text("About WUBU2", font=big_font)],
+        [sg.Text("WUBU2 was written to fit the need of a small app to log times into big buckets during a working day", font=font)],
+        [
+            sg.Text("App website: ", font=font),
+            sg.Text(website_link, font=font, enable_events=True, key='WEBSITE_LINK')
+        ],
+        [
+            sg.Text("About the Author: ", font=font),
+            sg.Text(author_link, font=font, enable_events=True, key='AUTHOR_LINK')
+        ],
+    ]
+    about_window = sg.Window(
+        "About WUBU2", about_layout, use_default_focus=False, finalize=True
+    )
+    event, about_values = about_window.read()
+    if event == "WEBSITE_LINK":
+        webbrowser.open(website_link)
+    if event == "AUTHOR_LINK":
+        webbrowser.open(author_link)
+
+    about_window.close()
 
 
 class NotifyThread(threading.Thread):
@@ -414,11 +460,12 @@ def main():
                 "Settings", font=font, tooltip="Edit app settings and configure bins"
             )
         ],
+        [sg.Button("About", font=font, tooltip="About the app")],
         [sg.Button("Exit", font=font, tooltip="Exit the app")],
     ]
     logging.info("Launching client")
     main_window = sg.Window(
-        "What U bin up 2", main_layout, keep_on_top=True, location=(1000, 200)
+        "WUBU2", main_layout, keep_on_top=True, location=(1000, 200)
     )
     first_run = True
     while True:
@@ -463,6 +510,8 @@ def main():
             show_report()
         if event == "Settings":
             show_settings()
+        if event == "About":
+            show_about()
         if event.startswith("Log"):
             # Iterate over bins looking for event
             for event_bin in list_bins:
