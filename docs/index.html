@@ -112,27 +112,27 @@
 <p>A small desktop app widget for tracking hours across a set of time bins.</p>
 <h2>Installation</h2>
 <p>To use the package, install via pip..</p>
-<p><pre>pip3 install whatubinup2</pre></p>
+<pre class="highlight"><pre>pip3 install whatubinup2</pre></pre>
 <h2>Launching</h2>
 <p>Launch from the terminal as:</p>
-<p><pre>whatubinup2</pre></p>
+<pre class="highlight"><pre>whatubinup2</pre></pre>
 <p>On first launch, default settings will be applied (8 hour working days with 10 minute reminders). Config files and reports are stored in <pre>~/whatubinup2/</pre></p>
 <h2>Local Development</h2>
 <p>To develop locally, install dependencies:</p>
-<p><pre>pip3 install -r requirements.txt</pre></p>
+<pre class="highlight"><pre>pip3 install -r requirements.txt</pre></pre>
 <p>Launch the client:</p>
-<p><pre>python3 src/whatubinup2/__main__.py</pre></p>
+<pre class="highlight"><pre>python3 src/whatubinup2/__main__.py</pre></pre>
 <h2>Github Pages</h2>
 <p>The github pages site is generated via a script in the pipeline by converting README.md into html and concatenating with template.html from the roor directory. To work on this locally, build the docker container using docker-compose:</p>
-<p><pre>docker-compose up -d</pre></p>
+<pre class="highlight"><pre>docker-compose up -d</pre></pre>
 <p>If you want to republish the README.md into the container, run the below script to reprocess the markdown:</p>
-<p><pre>python3 scripts/convert_markdown.py</pre></p>
+<pre class="highlight"><pre>python3 scripts/convert_markdown.py </pre></pre>
 <h2>Build process</h2>
 <p>Build testing, code linting, package bump and publishing are completed via Github actions.</p>
 <p>Build scripts require a commit message in the following format to generate a pull request</p>
-<p><pre>[PR|WIP]/$commit_message[[major]|[minor]|[patch]|[none]]</pre></p>
+<pre class="highlight"><pre>[PR|WIP]/$commit_message[[major]|[minor]|[patch]|[none]]</pre></pre>
 <p>Example to create a PR for a patch change:</p>
-<p><pre>PR/some small fix [patch]</pre></p>
+<pre class="highlight"><pre>PR/some small fix [patch]</pre></pre>
 <h2>Features coming soon</h2>
 <ul>
 <li>Let me know!</li>
