@@ -29,6 +29,8 @@ for file_name in glob.iglob("README.md", recursive=True):
             ("./docs/", ""),
             ("<code>", "<pre>"),
             ("</code>", "</pre>"),
+            ('<pre class="highlight">', "<p>"),
+            ("</pre></pre>", "</pre></p>"),
         ]
         for fix_item in fix_list:
             html = html.replace(fix_item[0], fix_item[1])
