@@ -83,8 +83,6 @@ jobs:
         if: env.DO_RELEASE == 'true'
         run: |
           python3 -m pip install --user --upgrade setuptools wheel twine
-          pip3 install -r requirements.txt 
-          
           echo "Creating pypi login file"
           echo "[pypi]
           username = __token__
@@ -93,9 +91,4 @@ jobs:
           echo "Building dist.."
           python3 setup.py bdist_wheel
 
-          echo "Uploading to pypi"
           ~/.local/bin/twine upload dist/*
-      - name: Commit bundled app package
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Commit bundled app
