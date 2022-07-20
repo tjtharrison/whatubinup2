@@ -5,7 +5,6 @@ A small desktop app widget for tracking hours across a set of time bins.
 ## Installation
 
 To use the package, install via pip..
-
 ```
 pip3 install whatubinup2
 ```
