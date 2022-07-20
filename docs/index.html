@@ -126,7 +126,7 @@
 <p>The github pages site is generated via a script in the pipeline by converting README.md into html and concatenating with template.html from the roor directory. To work on this locally, build the docker container using docker-compose:</p>
 <p><pre>docker-compose up -d</pre></p>
 <p>If you want to republish the README.md into the container, run the below script to reprocess the markdown:</p>
-<p><pre>python3 scripts/convert_markdown.py</pre></p>
+<p><pre>python3 scripts/convert_markdown.py </pre></p>
 <h2>Build process</h2>
 <p>Build testing, code linting, package bump and publishing are completed via Github actions.</p>
 <p>Build scripts require a commit message in the following format to generate a pull request</p>
