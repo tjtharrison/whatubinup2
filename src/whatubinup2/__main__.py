@@ -17,8 +17,8 @@ reports_dir = home_dir + "reports/"
 config_dir = home_dir + "config/"
 logs_dir = home_dir + "logs/"
 
-website_link = "https://teamjtharrison.github.io/whatubinup2"
-author_link = "https://readme.tjth.co"
+WEBSITE_LINK = "https://teamjtharrison.github.io/whatubinup2"
+AUTHOR_LINK = "https://readme.tjth.co"
 
 today = date.today()
 today_date = today.strftime("%y-%m-%d")
@@ -375,17 +375,20 @@ def show_about():
         [sg.Text("About WUBU2", font=big_font)],
         [
             sg.Text(
-                "WUBU2 was written to fit the need of a small app to log times into big buckets during a working day",
+                (
+                    "WUBU2 was written to fit the need of a small"
+                    "app to log times into big buckets during a working day"
+                ),
                 font=font,
             )
         ],
         [
             sg.Text("App website: ", font=font),
-            sg.Text(website_link, font=font, enable_events=True, key="WEBSITE_LINK"),
+            sg.Text(WEBSITE_LINK, font=font, enable_events=True, key="WEBSITE_LINK"),
         ],
         [
             sg.Text("About the Author: ", font=font),
-            sg.Text(author_link, font=font, enable_events=True, key="AUTHOR_LINK"),
+            sg.Text(AUTHOR_LINK, font=font, enable_events=True, key="AUTHOR_LINK"),
         ],
     ]
     about_window = sg.Window(
@@ -393,9 +396,10 @@ def show_about():
     )
     event, about_values = about_window.read()
     if event == "WEBSITE_LINK":
-        webbrowser.open(website_link)
+        logging.debug("About button clicked, details: %s", about_values)
+        webbrowser.open(WEBSITE_LINK)
     if event == "AUTHOR_LINK":
-        webbrowser.open(author_link)
+        webbrowser.open(AUTHOR_LINK)
 
     about_window.close()
 
@@ -421,12 +425,12 @@ class NotifyThread(threading.Thread):
         while True:
             if self.stopped():
                 logging.info("NotifyThread stopping")
-                return
+                break
             config = json.loads(get_config())
             time_since = round((time.time() - start_time) / 60, 1)
             if time_since > float(config["reminder_minutes"]["value"]):
                 logging.debug("Required time elapsed, triggering notification")
-                return True
+                break
             else:
                 remaining_time = round(
                     float(config["reminder_minutes"]["value"]) - time_since, 1
@@ -439,7 +443,6 @@ class NotifyThread(threading.Thread):
 
 def main():
     """Main app launch function"""
-    start_notifier = True
     logging.info("Getting config")
     get_config()
     logging.info("Getting bins")
