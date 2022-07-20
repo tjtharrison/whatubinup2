@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "whatubinup2"
-version = "1.1.9"
+version = "1.1.10"
 description = "Python desktop client for managing time logging"
 readme = "README.md"
 authors = [{ name = "TJTH", email = "tim@tjth.co" }]
