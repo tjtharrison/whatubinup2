@@ -471,7 +471,7 @@ def main():
     ]
     logging.info("Launching client")
     main_window = sg.Window(
-        "WUBU2", main_layout, keep_on_top=True, location=(1000, 200)
+        "WUBU2", main_layout, keep_on_top=True, location=(-250, -30)
     )
     first_run = True
     while True:
@@ -487,7 +487,7 @@ def main():
             notify_thread_manage.start()
             first_run = False
         working_hours = current_config["total_hours"]["value"]
-        event, main_values = main_window.read(timeout=2)
+        event, main_values = main_window.read(timeout=1000)
         if main_values != {}:
             logging.debug("Event triggered, entered values: %s", main_values)
         try:
