@@ -76,7 +76,7 @@ default_config = json.dumps(
             "description": "After how many minutes would you like a reminder",
             "value": 10,
         },
-        "restart_required": "false"
+        "restart_required": "false",
     }
 )
 
@@ -186,7 +186,7 @@ def show_settings():
                         "description": "After how many minutes would you like a reminder",
                         "value": setting_values[1],
                     },
-                    "restart_required": "true"
+                    "restart_required": "true",
                 }
             )
             with open(config_dir + "all.json", "w", encoding="UTF-8") as config_file:
@@ -452,9 +452,8 @@ def main():
     list_bins = json.loads(get_bins())["time_bins"]
     button_list = []
     main_layout = [
-        [sg.Column(button_list,key="all_bins")],
+        [sg.Column(button_list, key="all_bins")],
         [sg.Text("", font=font, key="current_total")],
-        
         [
             sg.Button(
                 "Report", font=font, tooltip="Show a report of current time binned"
@@ -469,12 +468,15 @@ def main():
         [sg.Button("About", font=font, tooltip="About the app")],
         [sg.Button("Exit", font=font, tooltip="Exit the app")],
     ]
-    main_window = sg.Window(    
+    main_window = sg.Window(
         "WUBU2", main_layout, keep_on_top=True, location=(-250, -30)
     )
     first_run = True
     while True:
-        if len(threading.enumerate()) < 2 or json.loads(get_config())["restart_required"] == "false":
+        if (
+            len(threading.enumerate()) < 2
+            or json.loads(get_config())["restart_required"] == "false"
+        ):
             logging.info("Launching client..")
             event, main_values = main_window.read(timeout=1000)
         today_report = json.loads(get_report())
@@ -489,7 +491,7 @@ def main():
             notify_thread_manage.start()
             first_run = False
         working_hours = current_config["total_hours"]["value"]
-        
+
         if main_values != {}:
             logging.debug("Event triggered, entered values: %s", main_values)
         try:
@@ -550,7 +552,7 @@ def main():
             )
     main_window.close()
 
- 
+
 if __name__ == "__main__":
     logging.info("Whatubinup2 starting..")
     main()
