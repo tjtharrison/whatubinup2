@@ -24,6 +24,7 @@ today = date.today()
 today_date = today.strftime("%y-%m-%d")
 font = ("Open Sans", 15)
 big_font = ("Open Sans", 25)
+placeholder_font = ("Open Sans", 0)
 
 sg.LOOK_AND_FEEL_TABLE["WUBU2"] = {
     "BACKGROUND": "#96C5F7",
@@ -75,6 +76,7 @@ default_config = json.dumps(
             "description": "After how many minutes would you like a reminder",
             "value": 10,
         },
+        "restart_required": "false"
     }
 )
 
@@ -184,6 +186,7 @@ def show_settings():
                         "description": "After how many minutes would you like a reminder",
                         "value": setting_values[1],
                     },
+                    "restart_required": "true"
                 }
             )
             with open(config_dir + "all.json", "w", encoding="UTF-8") as config_file:
@@ -345,7 +348,7 @@ def show_report():
                 report_text += (
                     report_item + " : " + str(report_json[report_item]) + " \n"
                 )
-            layout = [[sg.T(report_text, font=font)]]
+            layout = [[sg.Text(report_text, font=font)]]
             historic_report_list.append([sg.Tab(file_name, layout, font=font)])
     historic_report_frame = [[sg.TabGroup(historic_report_list, font=font)]]
     report_layout = [
@@ -446,24 +449,18 @@ def main():
     logging.info("Getting config")
     get_config()
     logging.info("Getting bins")
-    get_bins()
+    list_bins = json.loads(get_bins())["time_bins"]
+    button_list = []
     main_layout = [
-        [
-            [
-                sg.Button(
-                    "Log " + time_bin["nice_name"],
-                    font=font,
-                    tooltip="Log time in " + time_bin["nice_name"] + " bin",
-                )
-            ]
-            for time_bin in json.loads(get_bins())["time_bins"]
-        ],
+        [sg.Column(button_list,key="all_bins")],
         [sg.Text("", font=font, key="current_total")],
+        
         [
             sg.Button(
                 "Report", font=font, tooltip="Show a report of current time binned"
             )
         ],
+        [sg.Text("", font=placeholder_font, key="placeholder")],
         [
             sg.Button(
                 "Settings", font=font, tooltip="Edit app settings and configure bins"
@@ -472,12 +469,14 @@ def main():
         [sg.Button("About", font=font, tooltip="About the app")],
         [sg.Button("Exit", font=font, tooltip="Exit the app")],
     ]
-    logging.info("Launching client")
-    main_window = sg.Window(
+    main_window = sg.Window(    
         "WUBU2", main_layout, keep_on_top=True, location=(-250, -30)
     )
     first_run = True
     while True:
+        if len(threading.enumerate()) < 2 or json.loads(get_config())["restart_required"] == "false":
+            logging.info("Launching client..")
+            event, main_values = main_window.read(timeout=1000)
         today_report = json.loads(get_report())
         current_config = json.loads(get_config())
         list_bins = json.loads(get_bins())["time_bins"]
@@ -490,7 +489,7 @@ def main():
             notify_thread_manage.start()
             first_run = False
         working_hours = current_config["total_hours"]["value"]
-        event, main_values = main_window.read(timeout=1000)
+        
         if main_values != {}:
             logging.debug("Event triggered, entered values: %s", main_values)
         try:
@@ -551,7 +550,7 @@ def main():
             )
     main_window.close()
 
-
+ 
 if __name__ == "__main__":
     logging.info("Whatubinup2 starting..")
     main()
