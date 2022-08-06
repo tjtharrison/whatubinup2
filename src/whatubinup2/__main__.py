@@ -12,6 +12,7 @@ from datetime import date, datetime
 from os.path import exists, expanduser
 
 import PySimpleGUI as sg
+import requests
 
 home_dir = expanduser("~") + "/whatubinup2/"
 reports_dir = home_dir + "reports/"
