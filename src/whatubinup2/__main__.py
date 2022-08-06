@@ -4,18 +4,18 @@ import json
 import logging
 import os
 import os.path
+import socket
 import threading
 import time
-from attr import validate
-import requests
-import urllib3
-import socket
-from socket import gethostbyname, gaierror
 import webbrowser
 from datetime import date, datetime
 from os.path import exists, expanduser
+from socket import gaierror, gethostbyname
 
 import PySimpleGUI as sg
+import requests
+import urllib3
+from attr import validate
 
 home_dir = expanduser("~") + "/whatubinup2/"
 reports_dir = home_dir + "reports/"
@@ -84,7 +84,7 @@ default_config = json.dumps(
         "license_level": "free",
         "license_code": "",
         "license_validated": "",
-        "api_server": "http://localhost:5000"
+        "api_server": "http://localhost:5000",
     }
 )
 
@@ -142,7 +142,9 @@ def show_settings():
             [sg.Text("Settings", font=big_font)],
             [
                 sg.Text(
-                    "Total Hours", font=font, tooltip=config["total_hours"]["description"]
+                    "Total Hours",
+                    font=font,
+                    tooltip=config["total_hours"]["description"],
                 ),
                 sg.InputText(default_text=config["total_hours"]["value"], font=font),
             ],
@@ -152,18 +154,14 @@ def show_settings():
                     font=font,
                     tooltip=config["reminder_minutes"]["description"],
                 ),
-                sg.InputText(default_text=config["reminder_minutes"]["value"], font=font),
+                sg.InputText(
+                    default_text=config["reminder_minutes"]["value"], font=font
+                ),
             ],
             [sg.Text("Licensing", font=big_font)],
             [
-                sg.Text(
-                    "License level: ",
-                    font=font
-                ),
-                sg.Text(
-                    config["license_level"],
-                    font=font
-                ),
+                sg.Text("License level: ", font=font),
+                sg.Text(config["license_level"], font=font),
             ],
             [
                 sg.Text(
@@ -213,7 +211,9 @@ def show_settings():
             break
         else:
             if event == "Save":
-                with open(config_dir + "/all.json", "r+", encoding="UTF-8") as config_file:
+                with open(
+                    config_dir + "/all.json", "r+", encoding="UTF-8"
+                ) as config_file:
                     config_file_data = json.load(config_file)
                     config_file_data["total_hours"]["value"] = setting_values[0]
                     config_file_data["reminder_minutes"]["value"] = setting_values[1]
@@ -230,13 +230,16 @@ def show_settings():
                         edit_bin_layout = [
                             [
                                 sg.Text(
-                                    "Update fields below to edit " + edit_bin["nice_name"],
+                                    "Update fields below to edit "
+                                    + edit_bin["nice_name"],
                                     font=font,
                                 ),
                             ],
                             [
                                 sg.Text("Nice name:", font=font),
-                                sg.InputText(default_text=edit_bin["nice_name"], font=font),
+                                sg.InputText(
+                                    default_text=edit_bin["nice_name"], font=font
+                                ),
                             ],
                             [
                                 sg.Text("System name:", font=font),
@@ -275,7 +278,10 @@ def show_settings():
                         bin_config.seek(0)
                         bin_config.write(json.dumps(bin_config_data))
                         bin_config.truncate()
-                        sg.Popup("Bin edited successfully! App reload required to display new name", font=font)
+                        sg.Popup(
+                            "Bin edited successfully! App reload required to display new name",
+                            font=font,
+                        )
                     logging.info("New bin settings for applied: %s", new_bin_config)
                 edit_bin_window.close()
 
@@ -339,22 +345,24 @@ def show_settings():
                                     "must be unique"
                                 )
                                 okay_to_apply = False
-                        if len(add_bin_values[0]) == 0 or len(add_bin_values[1]) == 0 or len(add_bin_values[2]) == 0:
+                        if (
+                            len(add_bin_values[0]) == 0
+                            or len(add_bin_values[1]) == 0
+                            or len(add_bin_values[2]) == 0
+                        ):
                             popup_text = "All fields must be entered"
                             okay_to_apply = False
-                        
+
                         if okay_to_apply == True:
                             bin_config_data["time_bins"].append(add_bin_config)
                             bin_config.seek(0)
                             bin_config.write(json.dumps(bin_config_data))
                             bin_config.truncate()
                             popup_text = "New bin added (NOTE: This requires an app reload to log time against)!"
-                        sg.Popup(
-                            popup_text, font=font
-                        )
+                        sg.Popup(popup_text, font=font)
                 logging.info("New bin created: %s", add_bin_config)
                 add_bin_window.close()
-            
+
         settings_window.close()
         break
 
@@ -399,7 +407,9 @@ def show_ask_email():
                 all_config.write(json.dumps(all_config_data))
                 all_config.truncate()
                 if entered_email_address == "unlicensed":
-                    email_request_message = "No problem, only required for paid features!"
+                    email_request_message = (
+                        "No problem, only required for paid features!"
+                    )
                 else:
                     email_request_message = "Email address updated successfully! (With whatever you entered.. We're not checking!"
                 sg.Popup(email_request_message, font=font)
@@ -558,9 +568,7 @@ def check_licensing():
         # If not unlicensed
         if current_config["email_address"] != "unlicensed":
             if len(current_config["license_validated"]) == 0:
-                validated_time = datetime.strptime(
-                    str(now_time), date_format
-                )
+                validated_time = datetime.strptime(str(now_time), date_format)
             else:
                 validated_time = datetime.strptime(
                     current_config["license_validated"], date_format
@@ -592,7 +600,9 @@ def check_licensing():
                     all_config_license_val_data = json.load(all_config_license_val)
                     all_config_license_val_data["license_validated"] = str(now_time)
                     all_config_license_val.seek(0)
-                    all_config_license_val.write(json.dumps(all_config_license_val_data))
+                    all_config_license_val.write(
+                        json.dumps(all_config_license_val_data)
+                    )
                     all_config_license_val.truncate()
                 logging.info(
                     "License validation complete - " + str(status) + ": " + str(details)
@@ -617,7 +627,6 @@ def check_licensing():
     except Exception as e:
         status = "fail"
         details = "Something has gone wrong: " + str(e)
-
 
     response = json.dumps({"status": status, "details": details})
     return response
