@@ -6,7 +6,6 @@ import os
 import os.path
 import threading
 import time
-import requests
 import webbrowser
 from datetime import date, datetime
 from os.path import exists, expanduser
@@ -558,7 +557,7 @@ class NotifyThread(threading.Thread):
 
 
 def check_licensing():
-    """ Function to check licensing against API """
+    """Function to check licensing against API"""
     date_format = "%Y-%m-%d %H:%M:%S"
     current_config = json.loads(get_config())
     now_time = datetime.now().strftime(date_format)
