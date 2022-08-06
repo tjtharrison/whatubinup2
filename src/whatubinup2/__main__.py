@@ -582,14 +582,14 @@ def check_licensing():
 
                 url = current_config["api_server"] + "/api/auth/validate"
 
-                x = requests.post(
+                post_url = requests.post(
                     url,
                     json={
                         "id": current_config["email_address"],
                         "license": current_config["license_code"],
                     },
                 )
-                response = json.loads(x.text)
+                response = json.loads(post_url.text)
                 status = response["status"]
                 details = response["details"]
                 # License failed to validate
