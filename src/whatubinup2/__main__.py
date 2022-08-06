@@ -6,8 +6,13 @@ import os
 import os.path
 import threading
 import time
+from attr import validate
+import requests
+import urllib3
+import socket
+from socket import gethostbyname, gaierror
 import webbrowser
-from datetime import date
+from datetime import date, datetime
 from os.path import exists, expanduser
 
 import PySimpleGUI as sg
@@ -48,7 +53,7 @@ if not exists(logs_dir):
     os.mkdir(logs_dir)
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.FileHandler(logs_dir + "application_" + today_date + ".log"),
@@ -75,6 +80,11 @@ default_config = json.dumps(
             "description": "After how many minutes would you like a reminder",
             "value": 10,
         },
+        "email_address": "",
+        "license_level": "free",
+        "license_code": "",
+        "license_validated": "",
+        "api_server": "http://localhost:5000"
     }
 )
 
@@ -127,185 +137,274 @@ def show_settings():
     """Popup modal with current settings"""
     logging.info("Settings opened")
     config = json.loads(get_config())
-    settings_layout = [
-        [sg.Text("Settings", font=big_font)],
-        [
-            sg.Text(
-                "Total Hours", font=font, tooltip=config["total_hours"]["description"]
-            ),
-            sg.InputText(default_text=config["total_hours"]["value"], font=font),
-        ],
-        [
-            sg.Text(
-                "Reminder Minutes",
-                font=font,
-                tooltip=config["reminder_minutes"]["description"],
-            ),
-            sg.InputText(default_text=config["reminder_minutes"]["value"], font=font),
-        ],
-        [sg.Text("Bins", font=big_font)],
-        [
+    while True:
+        settings_layout = [
+            [sg.Text("Settings", font=big_font)],
             [
-                sg.Text("System Name: " + time_bin["name"], font=font),
-                sg.Text("Description: " + time_bin["description"], font=font),
-                sg.Button(
-                    "Edit " + time_bin["nice_name"],
-                    font=font,
-                    tooltip="Edit bin settings for " + time_bin["nice_name"],
+                sg.Text(
+                    "Total Hours", font=font, tooltip=config["total_hours"]["description"]
                 ),
-                sg.Button(
-                    "Delete " + time_bin["nice_name"],
+                sg.InputText(default_text=config["total_hours"]["value"], font=font),
+            ],
+            [
+                sg.Text(
+                    "Reminder Minutes",
                     font=font,
-                    tooltip="Delete bin " + time_bin["nice_name"],
+                    tooltip=config["reminder_minutes"]["description"],
                 ),
-            ]
-            for time_bin in json.loads(get_bins())["time_bins"]
-        ],
-        [
-            sg.Button("Add bin", font=font),
-        ],
-        [sg.Button("Save", font=font)],
-    ]
-    settings_window = sg.Window(
-        "WUBU2 Settings", settings_layout, use_default_focus=False, finalize=True
-    )
-    event, setting_values = settings_window.read()
-    if event == sg.WIN_CLOSED:
-        settings_window.close()
-    else:
-        if event == "Save":
-            new_config = json.dumps(
-                {
-                    "total_hours": {
-                        "description": "Total number of hours in working day",
-                        "value": setting_values[0],
-                    },
-                    "reminder_minutes": {
-                        "description": "After how many minutes would you like a reminder",
-                        "value": setting_values[1],
-                    },
-                }
-            )
-            with open(config_dir + "all.json", "w", encoding="UTF-8") as config_file:
-                config_file.write(new_config)
-                config_file.close()
-            logging.info("New settings applied: %s", new_config)
-        if event.startswith("Edit"):
-            for edit_bin in json.loads(get_bins())["time_bins"]:
-                raw_event = event.replace("Edit ", "")
-                if raw_event == edit_bin["nice_name"]:
-                    edit_bin_layout = [
-                        [
-                            sg.Text(
-                                "Update fields below to edit " + edit_bin["nice_name"],
-                                font=font,
-                            ),
-                        ],
-                        [
-                            sg.Text("Nice name:", font=font),
-                            sg.InputText(default_text=edit_bin["nice_name"], font=font),
-                        ],
-                        [
-                            sg.Text("System name:", font=font),
-                            sg.InputText(default_text=edit_bin["name"], font=font),
-                        ],
-                        [
-                            sg.Text("Description:", font=font),
-                            sg.InputText(
-                                default_text=edit_bin["description"], font=font
-                            ),
-                        ],
-                        [sg.Button("Save", font=font)],
-                    ]
-            edit_bin_window = sg.Window(
-                "Edit bin", edit_bin_layout, use_default_focus=False, finalize=True
-            )
-            event, bin_setting_values = edit_bin_window.read()
-            if event == sg.WIN_CLOSED:
-                settings_window.close()
+                sg.InputText(default_text=config["reminder_minutes"]["value"], font=font),
+            ],
+            [sg.Text("Licensing", font=big_font)],
+            [
+                sg.Text(
+                    "License level: ",
+                    font=font
+                ),
+                sg.Text(
+                    config["license_level"],
+                    font=font
+                ),
+            ],
+            [
+                sg.Text(
+                    "Email Address",
+                    font=font,
+                    tooltip="Registed email address for wubu2",
+                ),
+                sg.InputText(default_text=config["email_address"], font=font),
+            ],
+            [
+                sg.Text(
+                    "License Code",
+                    font=font,
+                    tooltip="License code for wubu2",
+                ),
+                sg.InputText(default_text=config["license_code"], font=font),
+            ],
+            [sg.Text("Bins", font=big_font)],
+            [
+                [
+                    sg.Text("System Name: " + time_bin["name"], font=font),
+                    sg.Text("Description: " + time_bin["description"], font=font),
+                    sg.Button(
+                        "Edit " + time_bin["nice_name"],
+                        font=font,
+                        tooltip="Edit bin settings for " + time_bin["nice_name"],
+                    ),
+                    sg.Button(
+                        "Delete " + time_bin["nice_name"],
+                        font=font,
+                        tooltip="Delete bin " + time_bin["nice_name"],
+                    ),
+                ]
+                for time_bin in json.loads(get_bins())["time_bins"]
+            ],
+            [
+                sg.Button("Add bin", font=font),
+            ],
+            [sg.Button("Save", font=font)],
+        ]
+        settings_window = sg.Window(
+            "WUBU2 Settings", settings_layout, use_default_focus=False, finalize=True
+        )
+        event, setting_values = settings_window.read()
+        if event == sg.WIN_CLOSED:
+            settings_window.close()
+            break
+        else:
             if event == "Save":
-                new_bin_config = {
-                    "name": bin_setting_values[1],
-                    "nice_name": bin_setting_values[0],
-                    "description": bin_setting_values[2],
-                }
-                with open(
-                    config_dir + "/bins.json", "r+", encoding="UTF-8"
-                ) as bin_config:
-                    bin_config_data = json.load(bin_config)
-                    list_position = 0
-                    for bin_config_item in bin_config_data["time_bins"]:
-                        if edit_bin["name"] != bin_config_item["name"]:
-                            list_position += 1
-                    bin_config_data["time_bins"][list_position] = new_bin_config
-                    bin_config.seek(0)
-                    bin_config.write(json.dumps(bin_config_data))
-                    bin_config.truncate()
-                    sg.Popup("Bin edited successfully!", font=font)
-                logging.info("New bin settings for applied: %s", new_bin_config)
-            edit_bin_window.close()
+                with open(config_dir + "/all.json", "r+", encoding="UTF-8") as config_file:
+                    config_file_data = json.load(config_file)
+                    config_file_data["total_hours"]["value"] = setting_values[0]
+                    config_file_data["reminder_minutes"]["value"] = setting_values[1]
+                    config_file_data["email_address"] = setting_values[2]
+                    config_file_data["license_code"] = setting_values[3]
+                    config_file.seek(0)
+                    config_file.write(json.dumps(config_file_data))
+                    config_file.truncate()
+                logging.info("New settings applied: %s", config_file_data)
+            if event.startswith("Edit"):
+                for edit_bin in json.loads(get_bins())["time_bins"]:
+                    raw_event = event.replace("Edit ", "")
+                    if raw_event == edit_bin["nice_name"]:
+                        edit_bin_layout = [
+                            [
+                                sg.Text(
+                                    "Update fields below to edit " + edit_bin["nice_name"],
+                                    font=font,
+                                ),
+                            ],
+                            [
+                                sg.Text("Nice name:", font=font),
+                                sg.InputText(default_text=edit_bin["nice_name"], font=font),
+                            ],
+                            [
+                                sg.Text("System name:", font=font),
+                                sg.InputText(default_text=edit_bin["name"], font=font),
+                            ],
+                            [
+                                sg.Text("Description:", font=font),
+                                sg.InputText(
+                                    default_text=edit_bin["description"], font=font
+                                ),
+                            ],
+                            [sg.Button("Save", font=font)],
+                        ]
+                edit_bin_window = sg.Window(
+                    "Edit bin", edit_bin_layout, use_default_focus=False, finalize=True
+                )
+                event, bin_setting_values = edit_bin_window.read()
+                if event == sg.WIN_CLOSED:
+                    settings_window.close()
+                    break
+                if event == "Save":
+                    new_bin_config = {
+                        "name": bin_setting_values[1],
+                        "nice_name": bin_setting_values[0],
+                        "description": bin_setting_values[2],
+                    }
+                    with open(
+                        config_dir + "/bins.json", "r+", encoding="UTF-8"
+                    ) as bin_config:
+                        bin_config_data = json.load(bin_config)
+                        list_position = 0
+                        for bin_config_item in bin_config_data["time_bins"]:
+                            if edit_bin["name"] != bin_config_item["name"]:
+                                list_position += 1
+                        bin_config_data["time_bins"][list_position] = new_bin_config
+                        bin_config.seek(0)
+                        bin_config.write(json.dumps(bin_config_data))
+                        bin_config.truncate()
+                        sg.Popup("Bin edited successfully! App reload required to display new name", font=font)
+                    logging.info("New bin settings for applied: %s", new_bin_config)
+                edit_bin_window.close()
 
-        if event.startswith("Delete"):
-            del_pos = 0
-            for del_bin in json.loads(get_bins())["time_bins"]:
-                raw_event = event.replace("Delete ", "")
-                if raw_event == del_bin["nice_name"]:
+            if event.startswith("Delete"):
+                del_pos = 0
+                for del_bin in json.loads(get_bins())["time_bins"]:
+                    raw_event = event.replace("Delete ", "")
+                    if raw_event == del_bin["nice_name"]:
+                        with open(
+                            config_dir + "bins.json", "r+", encoding="UTF-8"
+                        ) as bin_config:
+                            bin_config_data = json.load(bin_config)
+                            bin_config_data["time_bins"].pop(del_pos)
+                            bin_config.seek(0)
+                            bin_config.write(json.dumps(bin_config_data))
+                            bin_config.truncate()
+                            sg.Popup("Bin has been deleted!", font=font)
+                            logging.info("Bin has been deleted: %s", bin_config_data)
+                    else:
+                        del_pos += 1
+
+            if event == ("Add bin"):
+                add_bin_layout = [
+                    [
+                        sg.Text("Update fields below to create a new bin", font=font),
+                    ],
+                    [
+                        sg.Text("Nice name:", font=font),
+                        sg.InputText(font=font),
+                    ],
+                    [
+                        sg.Text("System name:", font=font),
+                        sg.InputText(font=font),
+                    ],
+                    [
+                        sg.Text("Description:", font=font),
+                        sg.InputText(font=font),
+                    ],
+                    [sg.Button("Save", font=font)],
+                ]
+                add_bin_window = sg.Window(
+                    "Add bin", add_bin_layout, use_default_focus=False, finalize=True
+                )
+                event, add_bin_values = add_bin_window.read()
+                if event == "Save":
+                    add_bin_config = {
+                        "name": add_bin_values[1],
+                        "nice_name": add_bin_values[0],
+                        "description": add_bin_values[2],
+                    }
                     with open(
                         config_dir + "bins.json", "r+", encoding="UTF-8"
                     ) as bin_config:
                         bin_config_data = json.load(bin_config)
-                        bin_config_data["time_bins"].pop(del_pos)
-                        bin_config.seek(0)
-                        bin_config.write(json.dumps(bin_config_data))
-                        bin_config.truncate()
-                        sg.Popup("Bin has been deleted!", font=font)
-                        logging.info("Bin has been deleted: %s", bin_config_data)
-                else:
-                    del_pos += 1
-
-        if event == ("Add bin"):
-            add_bin_layout = [
-                [
-                    sg.Text("Update fields below to create a new bin", font=font),
-                ],
-                [
-                    sg.Text("Nice name:", font=font),
-                    sg.InputText(font=font),
-                ],
-                [
-                    sg.Text("System name:", font=font),
-                    sg.InputText(font=font),
-                ],
-                [
-                    sg.Text("Description:", font=font),
-                    sg.InputText(font=font),
-                ],
-                [sg.Button("Save", font=font)],
-            ]
-            add_bin_window = sg.Window(
-                "Add bin", add_bin_layout, use_default_focus=False, finalize=True
-            )
-            event, add_bin_values = add_bin_window.read()
-            if event == "Save":
-                add_bin_config = {
-                    "name": add_bin_values[1],
-                    "nice_name": add_bin_values[0],
-                    "description": add_bin_values[2],
-                }
-                with open(
-                    config_dir + "bins.json", "r+", encoding="UTF-8"
-                ) as bin_config:
-                    bin_config_data = json.load(bin_config)
-                    bin_config_data["time_bins"].append(add_bin_config)
-                    bin_config.seek(0)
-                    bin_config.write(json.dumps(bin_config_data))
-                    bin_config.truncate()
-                    sg.Popup(
-                        "New bin added (NOTE: This requires an app reload)!", font=font
-                    )
-            logging.info("New bin created: %s", add_bin_config)
-            add_bin_window.close()
+                        # Validate bin does not exist already with the same name
+                        okay_to_apply = True
+                        for current_bin in bin_config_data["time_bins"]:
+                            if current_bin["name"] == add_bin_values[1]:
+                                popup_text = (
+                                    "Bin cannot be created with the same name as a current bin (System name "
+                                    "must be unique"
+                                )
+                                okay_to_apply = False
+                        if len(add_bin_values[0]) == 0 or len(add_bin_values[1]) == 0 or len(add_bin_values[2]) == 0:
+                            popup_text = "All fields must be entered"
+                            okay_to_apply = False
+                        
+                        if okay_to_apply == True:
+                            bin_config_data["time_bins"].append(add_bin_config)
+                            bin_config.seek(0)
+                            bin_config.write(json.dumps(bin_config_data))
+                            bin_config.truncate()
+                            popup_text = "New bin added (NOTE: This requires an app reload to log time against)!"
+                        sg.Popup(
+                            popup_text, font=font
+                        )
+                logging.info("New bin created: %s", add_bin_config)
+                add_bin_window.close()
+            
         settings_window.close()
+        break
+
+
+def show_ask_email():
+    """Popup modal asking for email address"""
+    logging.info("First launch, requesting email")
+    config = json.loads(get_config())
+    enter_email_layout = [
+        [
+            sg.Text(
+                "Enter email address for use of non-free features, leave blank otherwise..",
+                font=font,
+            )
+        ],
+        [
+            sg.Text(
+                "Email Address",
+                font=font,
+                tooltip="Email address used for non-free features",
+            ),
+            sg.InputText(font=font),
+        ],
+        [sg.Button("Save", font=font)],
+    ]
+    email_enter_window = sg.Window(
+        "Enter email", enter_email_layout, use_default_focus=False, finalize=True
+    )
+    event, email_address_value = email_enter_window.read()
+    if event == sg.WIN_CLOSED:
+        email_enter_window.close()
+    else:
+        if event == "Save":
+            if len(email_address_value[0]) == 0:
+                entered_email_address = "unlicensed"
+            else:
+                entered_email_address = email_address_value[0]
+            with open(config_dir + "/all.json", "r+", encoding="UTF-8") as all_config:
+                all_config_data = json.load(all_config)
+                all_config_data["email_address"] = entered_email_address
+                all_config.seek(0)
+                all_config.write(json.dumps(all_config_data))
+                all_config.truncate()
+                if entered_email_address == "unlicensed":
+                    email_request_message = "No problem, only required for paid features!"
+                else:
+                    email_request_message = "Email address updated successfully! (With whatever you entered.. We're not checking!"
+                sg.Popup(email_request_message, font=font)
+
+    email_enter_window.close()
 
 
 def get_report():
@@ -371,16 +470,26 @@ def show_report():
 
 def show_about():
     """Popup modal with the about page for the app"""
+    current_config = json.loads(get_config())
+
     about_layout = [
         [sg.Text("About WUBU2", font=big_font)],
         [
             sg.Text(
                 (
-                    "WUBU2 was written to fit the need of a small"
+                    "WUBU2 was written to fit the need of a small "
                     "app to log times into big buckets during a working day"
                 ),
                 font=font,
             )
+        ],
+        [
+            sg.Text("License type: " + current_config["license_level"], font=font),
+        ],
+        [
+            sg.Text(
+                "License registered to: " + current_config["email_address"], font=font
+            ),
         ],
         [
             sg.Text("App website: ", font=font),
@@ -429,16 +538,89 @@ class NotifyThread(threading.Thread):
             config = json.loads(get_config())
             time_since = round((time.time() - start_time) / 60, 1)
             if time_since > float(config["reminder_minutes"]["value"]):
-                logging.debug("Required time elapsed, triggering notification")
+                logging.info("Required time elapsed, triggering notification")
                 break
             else:
                 remaining_time = round(
                     float(config["reminder_minutes"]["value"]) - time_since, 1
                 )
-                logging.debug(
-                    "Not yet ready to notify, %s minutes left", remaining_time
-                )
+                logging.info("Not yet ready to notify, %s minutes left", remaining_time)
                 time.sleep(1)
+
+
+def check_licensing():
+    date_format = "%Y-%m-%d %H:%M:%S"
+    current_config = json.loads(get_config())
+    now_time = datetime.now().strftime(date_format)
+    now_time = datetime.strptime(now_time, date_format)
+
+    try:
+        # If not unlicensed
+        if current_config["email_address"] != "unlicensed":
+            if len(current_config["license_validated"]) == 0:
+                validated_time = datetime.strptime(
+                    str(now_time), date_format
+                )
+            else:
+                validated_time = datetime.strptime(
+                    current_config["license_validated"], date_format
+                )
+            time_diff = now_time - validated_time
+            # If never validated or validated > 1 minute ago
+            if (
+                len(current_config["license_validated"]) == 0
+                or time_diff.total_seconds() / 60 > 0.1
+            ):
+                logging.info("Validating license..")
+
+                url = current_config["api_server"] + "/api/auth/validate"
+
+                x = requests.post(
+                    url,
+                    json={
+                        "id": current_config["email_address"],
+                        "license": current_config["license_code"],
+                    },
+                )
+                response = json.loads(x.text)
+                status = response["status"]
+                details = response["details"]
+                # License failed to validate
+                with open(
+                    config_dir + "/all.json", "r+", encoding="UTF-8"
+                ) as all_config_license_val:
+                    all_config_license_val_data = json.load(all_config_license_val)
+                    all_config_license_val_data["license_validated"] = str(now_time)
+                    all_config_license_val.seek(0)
+                    all_config_license_val.write(json.dumps(all_config_license_val_data))
+                    all_config_license_val.truncate()
+                logging.info(
+                    "License validation complete - " + str(status) + ": " + str(details)
+                )
+            else:
+                status = "ok"
+                details = "Not ready to validate license yet, time left: " + str(
+                    time_diff.total_seconds() / 60
+                )
+        else:
+            status = "ok"
+            details = "Unlicensed email address"
+    except urllib3.exceptions.MaxRetryError:
+        status = "fail"
+        details = "Giving up connecting"
+    except urllib3.exceptions.NewConnectionError:
+        status = "fail"
+        details = "License check failed, failed to connect to api"
+    except socket.gaierror:
+        status = "fail"
+        details = "Failed to lookup api"
+    except Exception as e:
+        status = "fail"
+        details = "Something has gone wrong: " + str(e)
+
+
+    response = json.dumps({"status": status, "details": details})
+    return response
 
 
 def main():
@@ -482,6 +664,11 @@ def main():
         current_config = json.loads(get_config())
         list_bins = json.loads(get_bins())["time_bins"]
 
+        # Check email address configured
+        if first_run:
+            if len(current_config["email_address"]) < 1:
+                show_ask_email()
+
         if len(threading.enumerate()) < 2:
             if not first_run:
                 sg.Popup("Log your time!", font=font)
@@ -489,6 +676,23 @@ def main():
             notify_thread_manage = NotifyThread()
             notify_thread_manage.start()
             first_run = False
+
+        # Check licensing
+        if not first_run:
+            # If not a free license, validate with api
+            if current_config["license_level"] != "free":
+                licensing_check = json.loads(check_licensing())
+                if licensing_check["status"] != "ok":
+                    licensing_message = (
+                        "Licensing issues detected, closing "
+                        + licensing_check["details"]
+                    )
+                    sg.Popup(licensing_message, font=font)
+                    logging.info(licensing_message)
+                    notify_thread_manage.stop()
+                    notify_thread_manage.join()
+                    break
+
         working_hours = current_config["total_hours"]["value"]
         event, main_values = main_window.read(timeout=2)
         if main_values != {}:
