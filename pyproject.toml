@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=64.0.0", "wheel"]
+requires = ["setuptools>=65.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "whatubinup2"
-version = "4.0.0"
+version = "5.0.0"
 description = "Python desktop client for managing time logging"
 readme = "README.md"
 authors = [{ name = "TJTH", email = "tim@tjth.co" }]
