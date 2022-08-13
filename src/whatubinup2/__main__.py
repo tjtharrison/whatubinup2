@@ -80,7 +80,7 @@ default_config = json.dumps(
         "license_level": "free",
         "license_code": "",
         "license_validated": "",
-        "api_server": "http://api-wubu2.tjth.co"
+        "api_server": "http://api-wubu2.tjth.co",
     }
 )
 
