@@ -766,7 +766,7 @@ def main():
                     except KeyError:
                         today_report[event_bin["name"]] = 1
                     new_total = today_report[event_bin["name"]]
-                    logging.info("% time logged", raw_event)
+                    logging.info("%s time logged", raw_event)
                     time_logged = True
         if time_logged is True:
             with open(
