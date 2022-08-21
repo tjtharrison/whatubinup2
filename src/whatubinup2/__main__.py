@@ -81,7 +81,7 @@ default_config = json.dumps(
         "license_code": "",
         "license_validated": "",
         "api_server": "http://api-wubu2.tjth.co",
-        "historic_reports_to_show": 7
+        "historic_reports_to_show": 7,
     }
 )
 
@@ -224,7 +224,9 @@ def show_settings():
                     config_file_data = json.load(config_file)
                     config_file_data["total_hours"]["value"] = setting_values[0]
                     config_file_data["reminder_minutes"]["value"] = setting_values[1]
-                    config_file_data["historic_reports_to_show"] = int(setting_values[2])
+                    config_file_data["historic_reports_to_show"] = int(
+                        setting_values[2]
+                    )
                     config_file_data["email_address"] = setting_values[3]
                     config_file_data["license_code"] = setting_values[4]
                     config_file.seek(0)
@@ -421,7 +423,10 @@ def show_ask_email():
                         "No problem, only required for paid features!"
                     )
                 else:
-                    email_request_message = "Email address updated successfully! (With whatever you entered.. We're not checking!"
+                    email_request_message = (
+                        "Email address updated successfully!"
+                        " (With whatever you entered.. We're not checking!"
+                    )
                 sg.Popup(email_request_message, font=font)
 
     email_enter_window.close()
@@ -604,7 +609,7 @@ def check_licensing():
                         "license": current_config["license_code"],
                     },
                 )
-                
+
                 try:
                     response = json.loads(post_url.text)
                     status = response["status"]
@@ -619,15 +624,15 @@ def check_licensing():
                     all_config_license_val_data = json.load(all_config_license_val)
                     all_config_license_val_data["license_validated"] = str(now_time)
                     if status == "ok":
-                        all_config_license_val_data["license_level"] = response["details"]["license_status"]
+                        all_config_license_val_data["license_level"] = response[
+                            "details"
+                        ]["license_status"]
                     all_config_license_val.seek(0)
                     all_config_license_val.write(
                         json.dumps(all_config_license_val_data)
                     )
                     all_config_license_val.truncate()
-                logging.info(
-                    "License validation complete - " + str(status) + ": " + str(details)
-                )
+                logging.info("License validation complete - %s", str(details))
             else:
                 status = "ok"
                 details = "Not ready to validate license yet, time left: " + str(
@@ -701,7 +706,10 @@ def main():
         # Check licensing
         if not first_run:
             # If not a free license, validate with api
-            if current_config["license_level"] != "free" or len(current_config["license_code"]) > 0:
+            if (
+                current_config["license_level"] != "free"
+                or len(current_config["license_code"]) > 0
+            ):
                 licensing_check = json.loads(check_licensing())
                 if licensing_check["status"] != "ok":
                     licensing_message = (
@@ -758,7 +766,7 @@ def main():
                     except KeyError:
                         today_report[event_bin["name"]] = 1
                     new_total = today_report[event_bin["name"]]
-                    logging.info(raw_event + " time logged")
+                    logging.info("% time logged", raw_event)
                     time_logged = True
         if time_logged is True:
             with open(
