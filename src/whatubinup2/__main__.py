@@ -81,6 +81,7 @@ default_config = json.dumps(
         "license_code": "",
         "license_validated": "",
         "api_server": "http://api-wubu2.tjth.co",
+        "historic_reports_to_show": 7
     }
 )
 
@@ -154,6 +155,16 @@ def show_settings():
                     default_text=config["reminder_minutes"]["value"], font=font
                 ),
             ],
+            [
+                sg.Text(
+                    "Historic report maximum",
+                    font=font,
+                    tooltip="How many historic reports to display in Reports",
+                ),
+                sg.InputText(
+                    default_text=config["historic_reports_to_show"], font=font
+                ),
+            ],
             [sg.Text("Licensing", font=big_font)],
             [
                 sg.Text("License level: ", font=font),
@@ -213,8 +224,9 @@ def show_settings():
                     config_file_data = json.load(config_file)
                     config_file_data["total_hours"]["value"] = setting_values[0]
                     config_file_data["reminder_minutes"]["value"] = setting_values[1]
-                    config_file_data["email_address"] = setting_values[2]
-                    config_file_data["license_code"] = setting_values[3]
+                    config_file_data["historic_reports_to_show"] = int(setting_values[2])
+                    config_file_data["email_address"] = setting_values[3]
+                    config_file_data["license_code"] = setting_values[4]
                     config_file.seek(0)
                     config_file.write(json.dumps(config_file_data))
                     config_file.truncate()
@@ -439,6 +451,7 @@ def get_report():
 def show_report():
     """Popup modal with current time logging stats"""
     logging.info("Report opened")
+    current_config = json.loads(get_config())
     files = os.listdir(reports_dir)
     paths = [os.path.join(reports_dir, basename) for basename in files]
     paths.sort(key=os.path.getctime)
@@ -453,7 +466,9 @@ def show_report():
                     report_item + " : " + str(report_json[report_item]) + " \n"
                 )
             layout = [[sg.T(report_text, font=font)]]
-            historic_report_list.append([sg.Tab(file_name, layout, font=font)])
+            historic_report_list.insert(0, [sg.Tab(file_name, layout, font=font)])
+            historic_reports_to_show = current_config["historic_reports_to_show"]
+            historic_report_list = historic_report_list[0:historic_reports_to_show]
     historic_report_frame = [[sg.TabGroup(historic_report_list, font=font)]]
     report_layout = [
         [sg.Text("Todays", font=big_font)],
@@ -589,15 +604,22 @@ def check_licensing():
                         "license": current_config["license_code"],
                     },
                 )
-                response = json.loads(post_url.text)
-                status = response["status"]
-                details = response["details"]
+                
+                try:
+                    response = json.loads(post_url.text)
+                    status = response["status"]
+                    details = response["details"]
+                except json.JSONDecodeError:
+                    status = "fail"
+                    details = "Invalid response from api"
                 # License failed to validate
                 with open(
                     config_dir + "/all.json", "r+", encoding="UTF-8"
                 ) as all_config_license_val:
                     all_config_license_val_data = json.load(all_config_license_val)
                     all_config_license_val_data["license_validated"] = str(now_time)
+                    if status == "ok":
+                        all_config_license_val_data["license_level"] = response["details"]["license_status"]
                     all_config_license_val.seek(0)
                     all_config_license_val.write(
                         json.dumps(all_config_license_val_data)
@@ -679,11 +701,11 @@ def main():
         # Check licensing
         if not first_run:
             # If not a free license, validate with api
-            if current_config["license_level"] != "free":
+            if current_config["license_level"] != "free" or len(current_config["license_code"]) > 0:
                 licensing_check = json.loads(check_licensing())
                 if licensing_check["status"] != "ok":
                     licensing_message = (
-                        "Licensing issues detected, closing "
+                        "Licensing issues detected, closing:\n"
                         + licensing_check["details"]
                     )
                     sg.Popup(licensing_message, font=font)
@@ -736,7 +758,7 @@ def main():
                     except KeyError:
                         today_report[event_bin["name"]] = 1
                     new_total = today_report[event_bin["name"]]
-                    logging.info("Meeting time logged")
+                    logging.info(raw_event + " time logged")
                     time_logged = True
         if time_logged is True:
             with open(
