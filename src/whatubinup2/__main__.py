@@ -132,7 +132,6 @@ def get_config():
 
 def show_settings():
     """Popup modal with current settings"""
-    logging.info("Settings opened")
     config = json.loads(get_config())
     while True:
         settings_layout = [
@@ -212,6 +211,7 @@ def show_settings():
         settings_window = sg.Window(
             "WUBU2 Settings", settings_layout, use_default_focus=False, finalize=True
         )
+        logging.info("Settings opened")
         event, setting_values = settings_window.read()
         if event == sg.WIN_CLOSED:
             settings_window.close()
@@ -346,10 +346,15 @@ def show_settings():
                         config_dir + "bins.json", "r+", encoding="UTF-8"
                     ) as bin_config:
                         bin_config_data = json.load(bin_config)
-                        # Validate bin does not exist already with the same name
+                        # Validate bin nice name or system name
+                        # does not exist already with the same name
                         okay_to_apply = True
                         for current_bin in bin_config_data["time_bins"]:
-                            if current_bin["name"] == add_bin_values[1]:
+                            if (
+                                current_bin["name"].lower() == add_bin_values[1].lower()
+                                or current_bin["nice_name"].lower()
+                                == add_bin_values[0].lower()
+                            ):
                                 popup_text = (
                                     "Bin cannot be created with the same name "
                                     "as a current bin (System name must be unique)"
