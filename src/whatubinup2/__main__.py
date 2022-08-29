@@ -185,11 +185,13 @@ def show_settings():
                 ),
                 sg.InputText(default_text=config["license_code"], font=font),
             ],
-            [sg.Button(
-                "Request License",
-                font=font,
-                tooltip="Will update with free license if no license present"
-            )],
+            [
+                sg.Button(
+                    "Request License",
+                    font=font,
+                    tooltip="Will update with free license if no license present",
+                )
+            ],
             [sg.Text("Bins", font=big_font)],
             [
                 [
@@ -225,12 +227,7 @@ def show_settings():
             if event == "Request License":
                 url = config["api_server"] + "/api/auth/create"
 
-                post_url = requests.post(
-                    url,
-                    json={
-                        "id": config["email_address"]
-                    }
-                )
+                post_url = requests.post(url, json={"id": config["email_address"]})
 
                 try:
                     response = json.loads(post_url.text)
@@ -255,7 +252,7 @@ def show_settings():
                         "License request unsuccessful: " + details,
                         font=font,
                     )
-                
+
             if event == "Save":
                 with open(
                     config_dir + "/all.json", "r+", encoding="UTF-8"
