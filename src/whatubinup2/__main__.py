@@ -186,6 +186,11 @@ def show_settings():
                 ),
                 sg.InputText(default_text=config["license_code"], font=font),
             ],
+            [sg.Button(
+                "Request License",
+                font=font,
+                tooltip="Will update with free license if no license present"
+            )],
             [sg.Text("Bins", font=big_font)],
             [
                 [
@@ -218,6 +223,40 @@ def show_settings():
             settings_window.close()
             break
         else:
+            if event == "Request License":
+                url = config["api_server"] + "/api/auth/create"
+
+                post_url = requests.post(
+                    url,
+                    json={
+                        "id": config["email_address"]
+                    }
+                )
+
+                try:
+                    response = json.loads(post_url.text)
+                    status = response["status"]
+                    details = response["details"]
+                except json.JSONDecodeError:
+                    status = "fail"
+                    details = "Invalid response from api"
+
+                if status == "ok":
+                    with open(
+                        config_dir + "/all.json", "r+", encoding="UTF-8"
+                    ) as config_file:
+                        config_file_data = json.load(config_file)
+                        config_file_data["license_code"] = details["license_code"]
+                        config_file.seek(0)
+                        config_file.write(json.dumps(config_file_data))
+                        config_file.truncate()
+                        logging.info("Updated config with new license key")
+                else:
+                    sg.Popup(
+                        "License request unsuccessful: " + details,
+                        font=font,
+                    )
+                
             if event == "Save":
                 with open(
                     config_dir + "/all.json", "r+", encoding="UTF-8"
