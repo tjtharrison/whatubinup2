@@ -717,6 +717,7 @@ def check_licensing():
 def main():
     """Main app launch function"""
     logging.info("Getting config")
+    json.loads(get_config())
     config = json.loads(get_config())
     main_layout = [
         [
