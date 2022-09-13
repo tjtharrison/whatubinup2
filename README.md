@@ -64,8 +64,9 @@ Example to create a PR for a patch change:
 PR/some small fix [patch]
 ```
 
-## Features coming soon
-* Let me know!
+## Paid features
+
+* Cloud config storage
 
 ## Stretch features
 * Integration with gcal? (See you've been in a meeting)
