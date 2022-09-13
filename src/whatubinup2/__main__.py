@@ -771,7 +771,7 @@ def main():
                         current_config["api_server"] + "/api/config/sync",
                         json={
                             "id": current_config["email_address"],
-                            "license": current_config["license_code"]
+                            "license": current_config["license_code"],
                         },
                     )
                     cloud_config = json.loads(post_url.text)["details"]
