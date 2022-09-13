@@ -82,36 +82,15 @@ default_config = json.dumps(
         "license_validated": "",
         "api_server": "https://api-wubu2.tjth.co",
         "historic_reports_to_show": 7,
+        "time_bins": [
+            {
+                "name": "default",
+                "nice_name": "Default",
+                "description": "Default time bin",
+            }
+        ],
     }
 )
-
-
-def get_bins():
-    """Function to get bins from local config"""
-    check_for_dir(config_dir)
-    try:
-        with open(config_dir + "bins.json", encoding="utf-8") as config:
-            config = json.load(config)
-    except FileNotFoundError:
-        logging.info("bins.json config missing, generating from skeleton")
-        with open(config_dir + "bins.json", "w", encoding="UTF-8") as config_file:
-            config_file.write(
-                json.dumps(
-                    {
-                        "time_bins": [
-                            {
-                                "name": "default",
-                                "nice_name": "Default",
-                                "description": "Default time bin",
-                            }
-                        ]
-                    }
-                )
-            )
-            config_file.close()
-        logging.info("Default bins created!")
-        config = default_config
-    return json.dumps(config)
 
 
 def get_config():
@@ -208,7 +187,7 @@ def show_settings():
                         tooltip="Delete bin " + time_bin["nice_name"],
                     ),
                 ]
-                for time_bin in json.loads(get_bins())["time_bins"]
+                for time_bin in config["time_bins"]
             ],
             [
                 sg.Button("Add bin", font=font),
@@ -247,6 +226,14 @@ def show_settings():
                         config_file.write(json.dumps(config_file_data))
                         config_file.truncate()
                         logging.info("Updated config with new license key")
+                        post_url = requests.post(
+                            config_file_data["api_server"] + "/api/config/upload",
+                            json={
+                                "id": config_file_data["email_address"],
+                                "license": config_file_data["license_code"],
+                                "config": config_file_data,
+                            },
+                        )
                 else:
                     sg.Popup(
                         "License request unsuccessful: " + details,
@@ -268,9 +255,21 @@ def show_settings():
                     config_file.seek(0)
                     config_file.write(json.dumps(config_file_data))
                     config_file.truncate()
+                    # Upload to cloud if paid
+                    if config_file_data["license_level"] == "paid":
+                        print("Got here")
+                        post_url = requests.post(
+                            config_file_data["api_server"] + "/api/config/upload",
+                            json={
+                                "id": config_file_data["email_address"],
+                                "license": config_file_data["license_code"],
+                                "config": config_file_data,
+                            },
+                        )
+                        logging.info("Settings uploaded to Cloud")
                 logging.info("New settings applied: %s", config_file_data)
             if event.startswith("Edit"):
-                for edit_bin in json.loads(get_bins())["time_bins"]:
+                for edit_bin in config["time_bins"]:
                     raw_event = event.replace("Edit ", "")
                     if raw_event == edit_bin["nice_name"]:
                         edit_bin_layout = [
@@ -313,7 +312,7 @@ def show_settings():
                         "description": bin_setting_values[2],
                     }
                     with open(
-                        config_dir + "/bins.json", "r+", encoding="UTF-8"
+                        config_dir + "/all.json", "r+", encoding="UTF-8"
                     ) as bin_config:
                         bin_config_data = json.load(bin_config)
                         list_position = 0
@@ -328,16 +327,24 @@ def show_settings():
                             "Bin edited successfully! App reload required to display new name",
                             font=font,
                         )
+                        post_url = requests.post(
+                            bin_config_data["api_server"] + "/api/config/upload",
+                            json={
+                                "id": bin_config_data["email_address"],
+                                "license": bin_config_data["license_code"],
+                                "config": bin_config_data,
+                            },
+                        )
                     logging.info("New bin settings for applied: %s", new_bin_config)
                 edit_bin_window.close()
 
             if event.startswith("Delete"):
                 del_pos = 0
-                for del_bin in json.loads(get_bins())["time_bins"]:
+                for del_bin in config["time_bins"]:
                     raw_event = event.replace("Delete ", "")
                     if raw_event == del_bin["nice_name"]:
                         with open(
-                            config_dir + "bins.json", "r+", encoding="UTF-8"
+                            config_dir + "all.json", "r+", encoding="UTF-8"
                         ) as bin_config:
                             bin_config_data = json.load(bin_config)
                             bin_config_data["time_bins"].pop(del_pos)
@@ -346,6 +353,14 @@ def show_settings():
                             bin_config.truncate()
                             sg.Popup("Bin has been deleted!", font=font)
                             logging.info("Bin has been deleted: %s", bin_config_data)
+                            post_url = requests.post(
+                                bin_config_data["api_server"] + "/api/config/upload",
+                                json={
+                                    "id": bin_config_data["email_address"],
+                                    "license": bin_config_data["license_code"],
+                                    "config": bin_config_data,
+                                },
+                            )
                     else:
                         del_pos += 1
 
@@ -379,7 +394,7 @@ def show_settings():
                         "description": add_bin_values[2],
                     }
                     with open(
-                        config_dir + "bins.json", "r+", encoding="UTF-8"
+                        config_dir + "all.json", "r+", encoding="UTF-8"
                     ) as bin_config:
                         bin_config_data = json.load(bin_config)
                         # Validate bin nice name or system name
@@ -413,6 +428,14 @@ def show_settings():
                                 "New bin added "
                                 "(NOTE: This requires an app reload to log time against)!"
                             )
+                        post_url = requests.post(
+                            bin_config_data["api_server"] + "/api/config/upload",
+                            json={
+                                "id": bin_config_data["email_address"],
+                                "license": bin_config_data["license_code"],
+                                "config": bin_config_data,
+                            },
+                        )
                         sg.Popup(popup_text, font=font)
                 logging.info("New bin created: %s", add_bin_config)
                 add_bin_window.close()
@@ -476,6 +499,7 @@ def show_ask_email():
 def get_report():
     """Function to get or generate todays report"""
     check_for_dir(reports_dir)
+    current_config = json.loads(get_config())
     try:
         with open(reports_dir + today_date + ".json", encoding="utf-8") as report:
             report = json.load(report)
@@ -485,7 +509,7 @@ def get_report():
             reports_dir + today_date + ".json", "w", encoding="UTF-8"
         ) as report_file:
             report_skeleton = {}
-            for update_bin in json.loads(get_bins())["time_bins"]:
+            for update_bin in current_config["time_bins"]:
                 report_skeleton.update({update_bin["name"]: 0})
             report_file.write(json.dumps(report_skeleton))
             report_file.close()
@@ -693,9 +717,7 @@ def check_licensing():
 def main():
     """Main app launch function"""
     logging.info("Getting config")
-    get_config()
-    logging.info("Getting bins")
-    get_bins()
+    config = json.loads(get_config())
     main_layout = [
         [
             [
@@ -705,7 +727,7 @@ def main():
                     tooltip="Log time in " + time_bin["nice_name"] + " bin",
                 )
             ]
-            for time_bin in json.loads(get_bins())["time_bins"]
+            for time_bin in config["time_bins"]
         ],
         [sg.Text("", font=font, key="current_total")],
         [
@@ -729,12 +751,44 @@ def main():
     while True:
         today_report = json.loads(get_report())
         current_config = json.loads(get_config())
-        list_bins = json.loads(get_bins())["time_bins"]
+        list_bins = config["time_bins"]
 
         # Check email address configured
         if first_run:
             if len(current_config["email_address"]) < 1:
                 show_ask_email()
+
+        # Sync settings
+        if first_run:
+            if (
+                current_config["license_level"] != "free"
+                or len(current_config["license_code"]) > 0
+            ):
+                try:
+                    # Retrieve config from Cloud
+                    print("Retrieving config from Cloud")
+                    post_url = requests.post(
+                        current_config["api_server"] + "/api/config/sync",
+                        json={
+                            "id": current_config["email_address"],
+                            "license": current_config["license_code"]
+                        },
+                    )
+                    cloud_config = json.loads(post_url.text)["details"]
+                    # Apply Cloud config if not license_validated
+                    with open(
+                        config_dir + "/all.json", "r+", encoding="UTF-8"
+                    ) as config_file:
+                        config_file_data = json.load(config_file)
+                        for setting in cloud_config:
+                            if setting != "license_validated":
+                                config_file_data[setting] = cloud_config[setting]
+                        config_file.seek(0)
+                        config_file.write(json.dumps(config_file_data))
+                        config_file.truncate()
+                        logging.info("Updated local config from cloud")
+                except Exception as error_message:
+                    print("Failed to retrieve config: " + str(error_message))
 
         if len(threading.enumerate()) < 2:
             if not first_run:
