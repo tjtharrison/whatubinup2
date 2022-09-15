@@ -98,17 +98,21 @@ jobs:
   build-windows:
     runs-on: windows-latest
     steps:
+      - name: Build and publish
+        if: env.DO_RELEASE == 'true'
       - uses: actions/checkout@v3
+        if: env.DO_RELEASE == 'true'
         with:
           fetch_depth: 0
-      - name: Test build Windows
+      - name: Build windows installer
+        if: env.DO_RELEASE == 'true'
         run: |
           pip install pyinstaller
           pip install -r requirements.txt --target tmp
           pyinstaller --paths tmp src\whatubinup2\__main__.py
           rm -force -recurse -Confirm:$false tmp
           rm -force -recurse -Confirm:$false build
-          rm -force -Confirm:$false docs\static\wubu_win
+          rm -force -Confirm:$false docs\static\wubu_win.zip
           Compress-Archive -Path dist\__main__ -DestinationPath docs\static\wubu_win
       - name: Commit windows build
         uses: stefanzweifel/git-auto-commit-action@v4
