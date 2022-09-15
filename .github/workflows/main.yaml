@@ -95,3 +95,22 @@ jobs:
 
           echo "Uploading to pypi"
           ~/.local/bin/twine upload dist/*
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch_depth: 0
+      - name: Test build Windows
+        run: |
+          pip install pyinstaller
+          pip install -r requirements.txt --target tmp
+          pyinstaller --paths tmp src\whatubinup2\__main__.py
+          rm -force -recurse -Confirm:$false tmp
+          rm -force -recurse -Confirm:$false build
+          rm -force -Confirm:$false docs\static\wubu_win
+          Compress-Archive -Path dist\__main__ -DestinationPath docs\static\wubu_win
+      - name: Commit windows build
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Uploaded Windows Build
