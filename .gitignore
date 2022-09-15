@@ -1,11 +1,7 @@
-config.json
-report.json
 logs/*
 reports/*
-config/*
 *__pycache__*
 *.egg-info
 dist
 .DS_Store
 build
-src/whatubinup2/*.json
