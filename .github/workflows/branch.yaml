@@ -114,7 +114,7 @@ jobs:
           pyinstaller --paths tmp src\whatubinup2\__main__.py
           rm -force -recurse -Confirm:$false tmp
           rm -force -recurse -Confirm:$false build
-          Compress-Archive -Path dist\__main__ -DestinationPath docs\static
+          Compress-Archive -Path dist\__main__ -DestinationPath docs\static\wubu_win
       - name: Commit windows build
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
