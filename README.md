@@ -2,15 +2,15 @@
 
 A small desktop app widget for tracking hours across a set of time bins.
 
-## Installation
+# Installation
+
+## MacOS
 
 To use the package, install via pip..
 
 ```
 pip3 install whatubinup2
 ```
-
-## Launching
 
 Launch from the terminal as:
 
@@ -19,6 +19,11 @@ whatubinup2
 ```
 
 On first launch, default settings will be applied (8 hour working days with 10 minute reminders). Config files and reports are stored in `~/whatubinup2/`
+
+## Windows
+
+Download zip from (here)[docs/static/wubu_win.zip], extract the archive and run the executable.
+
 
 ## Local Development
 
@@ -68,5 +73,7 @@ PR/some small fix [patch]
 
 * Cloud config storage
 
-## Stretch features
-* Integration with gcal? (See you've been in a meeting)
+## Upcoming features
+
+* Cloud report storage
+* Integration with Cloud calendars (Gsuite, O365)
