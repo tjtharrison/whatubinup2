@@ -18,7 +18,7 @@ Request a license and [contact me](https://readme.tjth.co) to arange upgrade to 
 
 * Cloud report storage
 * Integration with Cloud calendars (Gsuite, O365)
-
+* Cleaner windows install (Pending MS approval)
 
 # Installation
 
