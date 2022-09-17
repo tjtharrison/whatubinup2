@@ -1,6 +1,24 @@
 # What U bin up 2
 
-A small desktop app widget for tracking hours across a set of time bins.
+A small desktop widget for logging time into configurable buckets.
+
+The free version of the app provides access to:
+
+* Configurable buckets (Create any number of buckets into which time can be logged)
+* Configurable reminders/popups (Popup Hourly/minutely reminders to log your time!)
+* Historic reports (View daily time logged into buckets)
+
+Request a license and [contact me](https://readme.tjth.co) to arange upgrade to paid features.
+
+## Paid features
+
+* Cloud config storage
+
+## Upcoming features
+
+* Cloud report storage
+* Integration with Cloud calendars (Gsuite, O365)
+* Cleaner windows install (Pending MS approval)
 
 # Installation
 
@@ -22,10 +40,23 @@ On first launch, default settings will be applied (8 hour working days with 10 m
 
 ## Windows
 
-Download zip from (here)[docs/static/wubu_win.zip], extract the archive and run the executable.
+### Python
 
+_NOTE: Requires Python3 with pip - Download [here](https://www.python.org/downloads/windows/)_
+_NOTE: During installation, ensure to tick the box to enable py shortcut commands from cmd_
 
-## Local Development
+```
+py -m pip install whatubinup2
+py c:\users\[Username]\appdata\local\programs\python\python310\lib\site-packages\whatubinup2 ## Based on a standard Python 3.10 installation
+```
+
+### Exe 
+
+_Currently being raised as a virus by SafeScreen, support ticket logged with Microsoft_
+
+Download zip from [here](static/wubu_win.zip), extract the archive and run the executable `__main__.exe`. (Aware )
+
+# Local Development
 
 To develop locally, install dependencies:
 
@@ -41,13 +72,15 @@ python3 src/whatubinup2/__main__.py
 
 ## Github Pages
 
-The github pages site is generated via a script in the pipeline by converting README.md into html and concatenating with template.html from the roor directory. To work on this locally, build the docker container using docker-compose:
+The github pages site is generated via a script in the pipeline by converting README.md into html and concatenating with template.html from the root directory. To work on this locally, build the docker container using docker-compose:
 
 ```
 docker-compose up -d
 ```
 
-If you want to republish the README.md into the container, run the below script to reprocess the markdown:
+The docs will then be available at `http://localhost:8080`
+
+If you want to republish the README.md into the container, run the below script to reprocess the markdown (You will need to run `pip3 install -r requirements-html.txt` the first time):
 
 ```
 python3 scripts/convert_markdown.py 
@@ -69,11 +102,3 @@ Example to create a PR for a patch change:
 PR/some small fix [patch]
 ```
 
-## Paid features
-
-* Cloud config storage
-
-## Upcoming features
-
-* Cloud report storage
-* Integration with Cloud calendars (Gsuite, O365)
