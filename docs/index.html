@@ -132,6 +132,7 @@
 <ul>
 <li>Cloud report storage</li>
 <li>Integration with Cloud calendars (Gsuite, O365)</li>
+<li>Cleaner windows install (Pending MS approval)</li>
 </ul>
 <h1>Installation</h1>
 <h2>MacOS</h2>
@@ -141,7 +142,14 @@
 <p><pre>whatubinup2</pre></p>
 <p>On first launch, default settings will be applied (8 hour working days with 10 minute reminders). Config files and reports are stored in <pre>~/whatubinup2/</pre></p>
 <h2>Windows</h2>
-<p>Download zip from <a href="static/wubu_win.zip">here</a>, extract the archive and run the executable <pre>__main__.exe</pre>.</p>
+<h3>Python</h3>
+<p><em>NOTE: Requires Python3 with pip - Download <a href="https://www.python.org/downloads/windows/">here</a></em>
+<em>NOTE: During installation, ensure to tick the box to enable py shortcut commands from cmd</em></p>
+<p><pre>py -m pip install whatubinup2
+py c:\users\[Username]\appdata\local\programs\python\python310\lib\site-packages\whatubinup2 ## Based on a standard Python 3.10 installation</pre></p>
+<h3>Exe</h3>
+<p><em>Currently being raised as a virus by SafeScreen, support ticket logged with Microsoft</em></p>
+<p>Download zip from <a href="static/wubu_win.zip">here</a>, extract the archive and run the executable <pre>__main__.exe</pre>. (Aware )</p>
 <h1>Local Development</h1>
 <p>To develop locally, install dependencies:</p>
 <p><pre>pip3 install -r requirements.txt</pre></p>
