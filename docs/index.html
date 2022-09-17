@@ -16,12 +16,15 @@
     h2,
     h3 {
         text-transform: uppercase;
-        color: #96C5F7;
+        color:#F2F4FF;
     }
 
+    p {
+        font-weight: bold;
+    }
 
     span.green,
-    a {
+    #header_block a {
         color: #F2F4FF;
         text-decoration: underline;
     }
@@ -31,9 +34,11 @@
     }
 
 
-    body {
+    html, body {
         font-family: 'Open Sans', 'sans-serif';
         margin: 0 auto;
+        background: #A9D3FF;
+        color:#F2F4FF;
     }
 
     .content_wrapper{
@@ -48,7 +53,7 @@
     }
 
     #header_block {
-        background: #A9D3FF;
+        
         width: 100%;
         color: #F2F4FF;
     }
@@ -57,6 +62,7 @@
     #header_block h2,
     #header_block h3 {
         color:#F2F4FF;
+        font-weight: bold;
     }
 
     a:hover {
@@ -104,37 +110,20 @@
             href="https://readme.tjth.co">TimH</a></a></p>
         <h2>WUBU2</h2>
         <h3>Light time logging app</h3>
+        <h3><i>** Page under development **</i></h3>
     </div>
 </div>
 
 <div id="body" class="content_wrapper">
     <h1>What U bin up 2</h1>
-<p>A small desktop app widget for tracking hours across a set of time bins.</p>
-<h1>Installation</h1>
-<h2>MacOS</h2>
-<p>To use the package, install via pip..</p>
-<p><pre>pip3 install whatubinup2</pre></p>
-<p>Launch from the terminal as:</p>
-<p><pre>whatubinup2</pre></p>
-<p>On first launch, default settings will be applied (8 hour working days with 10 minute reminders). Config files and reports are stored in <pre>~/whatubinup2/</pre></p>
-<h2>Windows</h2>
-<p>Download zip from (here)[docs/static/wubu_win.zip], extract the archive and run the executable.</p>
-<h2>Local Development</h2>
-<p>To develop locally, install dependencies:</p>
-<p><pre>pip3 install -r requirements.txt</pre></p>
-<p>Launch the client:</p>
-<p><pre>python3 src/whatubinup2/__main__.py</pre></p>
-<h2>Github Pages</h2>
-<p>The github pages site is generated via a script in the pipeline by converting README.md into html and concatenating with template.html from the roor directory. To work on this locally, build the docker container using docker-compose:</p>
-<p><pre>docker-compose up -d</pre></p>
-<p>If you want to republish the README.md into the container, run the below script to reprocess the markdown:</p>
-<p><pre>python3 scripts/convert_markdown.py </pre></p>
-<h2>Build process</h2>
-<p>Build testing, code linting, package bump and publishing are completed via Github actions.</p>
-<p>Build scripts require a commit message in the following format to generate a pull request</p>
-<p><pre>[PR|WIP]/$commit_message[[major]|[minor]|[patch]|[none]]</pre></p>
-<p>Example to create a PR for a patch change:</p>
-<p><pre>PR/some small fix [patch]</pre></p>
+<p>A small desktop widget for logging time into configurable buckets.</p>
+<p>The free version of the app provides access to:</p>
+<ul>
+<li>Configurable buckets (Create any number of buckets into which time can be logged)</li>
+<li>Configurable reminders/popups (Popup Hourly/minutely reminders to log your time!)</li>
+<li>Historic reports (View daily time logged into buckets)</li>
+</ul>
+<p>Request a license and <a href="https://readme.tjth.co">contact me</a> to arange upgrade to paid features.</p>
 <h2>Paid features</h2>
 <ul>
 <li>Cloud config storage</li>
@@ -143,5 +132,31 @@
 <ul>
 <li>Cloud report storage</li>
 <li>Integration with Cloud calendars (Gsuite, O365)</li>
-</ul> 
+</ul>
+<h1>Installation</h1>
+<h2>MacOS</h2>
+<p>To use the package, install via pip..</p>
+<p><pre>pip3 install whatubinup2</pre></p>
+<p>Launch from the terminal as:</p>
+<p><pre>whatubinup2</pre></p>
+<p>On first launch, default settings will be applied (8 hour working days with 10 minute reminders). Config files and reports are stored in <pre>~/whatubinup2/</pre></p>
+<h2>Windows</h2>
+<p>Download zip from <a href="static/wubu_win.zip">here</a>, extract the archive and run the executable <pre>__main__.exe</pre>.</p>
+<h1>Local Development</h1>
+<p>To develop locally, install dependencies:</p>
+<p><pre>pip3 install -r requirements.txt</pre></p>
+<p>Launch the client:</p>
+<p><pre>python3 src/whatubinup2/__main__.py</pre></p>
+<h2>Github Pages</h2>
+<p>The github pages site is generated via a script in the pipeline by converting README.md into html and concatenating with template.html from the root directory. To work on this locally, build the docker container using docker-compose:</p>
+<p><pre>docker-compose up -d</pre></p>
+<p>The docs will then be available at <pre>http://localhost:8080</pre></p>
+<p>If you want to republish the README.md into the container, run the below script to reprocess the markdown (You will need to run <pre>pip3 install -r requirements-html.txt</pre> the first time):</p>
+<p><pre>python3 scripts/convert_markdown.py </pre></p>
+<h2>Build process</h2>
+<p>Build testing, code linting, package bump and publishing are completed via Github actions.</p>
+<p>Build scripts require a commit message in the following format to generate a pull request</p>
+<p><pre>[PR|WIP]/$commit_message[[major]|[minor]|[patch]|[none]]</pre></p>
+<p>Example to create a PR for a patch change:</p>
+<p><pre>PR/some small fix [patch]</pre></p> 
 </div>
